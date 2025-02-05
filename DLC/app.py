@@ -13,7 +13,7 @@ try:
     sheet_name = 'Question Bank (EN)'
 
     # Step 1: Load the Excel file
-    df = pd.read_excel(file_path, sheet_name=sheet_name)
+    df = pd.read_excel(file_path, sheet_name=sheet_name, engine='openpyxl')
 
     print("Columns in Excel:", df.columns.tolist())
     
