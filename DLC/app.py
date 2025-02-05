@@ -15,8 +15,10 @@ try:
     # Step 1: Load the Excel file
     df = pd.read_excel(file_path, sheet_name=sheet_name)
 
+    print("Columns in Excel:", df.columns.tolist())
+    
     # Step 2: Filter out "green status" questions
-    df_filtered = df[df['G'].str.lower() != 'green']
+    df_filtered = df[df['Status'].str.lower() != 'green']
 
     # Step 3: Select random questions
     while len(selected_questions) < 15:
