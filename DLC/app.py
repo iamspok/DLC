@@ -1,7 +1,7 @@
 import os
 import random
 import pandas as pd
-from flask import Flask, jsonify
+from flask import Flask, jsonify, render_template
 
 app = Flask(__name__)
 
@@ -22,7 +22,7 @@ try:
 
     # Step 3: Select random questions
     while len(selected_questions) < 15:
-        question_row = df_filtered.sample(n=1).iloc[0]
+        question_row = df_filtered.sample(n=1).iloc
         question = question_row['Questions']
         correct_answer = question_row['Correct Answer']
         answers = [correct_answer]
@@ -46,15 +46,7 @@ def display_questions():
         if not selected_questions:
             return jsonify({'error': 'No questions loaded. Please check the Excel file or server logs.'})
 
-        questions_output = []
-        for idx, item in enumerate(selected_questions, start=1):
-            questions_output.append({
-                'question_number': idx,
-                'question': item['question'],
-                'answers': item['answers'],
-                'correct_answer': item['correct_answer']
-            })
-        return jsonify(questions_output)
+        return render_template('quiz.html', questions=selected_questions)
     except Exception as e:
         return jsonify({'error': str(e)})
 
