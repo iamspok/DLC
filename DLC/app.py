@@ -19,10 +19,12 @@ try:
     
     # Step 2: Filter out "green status" questions
     df_filtered = df[df['Status'].str.lower() != 'green']
+    print("Filtered DataFrame:", df_filtered.head())
 
     # Step 3: Select random questions
     while len(selected_questions) < 15:
         question_row = df_filtered.sample(n=1).iloc
+        print("Selected question row:", question_row)
         question = question_row['Questions']
         correct_answer = question_row['Correct Answer']
         answers = [correct_answer]
