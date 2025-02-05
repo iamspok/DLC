@@ -24,7 +24,7 @@ try:
     # Step 3: Select random questions
     while len(selected_questions) < 15:
         question_row = df_filtered.sample(n=1).iloc
-        print("Selected question row:", question_row)
+        print("Selected question row:", question_row.to_dict())
         question = question_row['Questions']
         correct_answer = question_row['Correct Answer']
         answers = [correct_answer]
