@@ -5,6 +5,9 @@ from flask import Flask, jsonify
 
 app = Flask(__name__)
 
+# Initialize selected_questions to avoid undefined variable errors
+selected_questions = []
+
 try:
     file_path = 'DLC Question Bank.xlsx'
     sheet_name = 'Question Bank (EN)'
@@ -16,7 +19,6 @@ try:
     df_filtered = df[df['G'].str.lower() != 'green']
 
     # Step 3: Select random questions
-    selected_questions = []
     while len(selected_questions) < 15:
         question_row = df_filtered.sample(n=1).iloc[0]
         question = question_row['A']
@@ -39,6 +41,9 @@ except Exception as e:
 @app.route('/')
 def display_questions():
     try:
+        if not selected_questions:
+            return jsonify({'error': 'No questions loaded. Please check the Excel file or server logs.'})
+
         questions_output = []
         for idx, item in enumerate(selected_questions, start=1):
             questions_output.append({
