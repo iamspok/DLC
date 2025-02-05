@@ -6,11 +6,14 @@ from flask import Flask, jsonify
 app = Flask(__name__)
 
 # Step 1: Define file path for the Excel file in the same directory
-file_url = 'https://github.com/iamspok/DLC/blob/main/DLC/DLC%20Question%20Bank.xlsx'
-sheet_name = 'Question Bank (EN)'  # Adjust if necessary
+file_path = 'DLC Question Bank.xlsx'  # Adjust if the filename or path differs
+sheet_name = 'Question Bank (EN)'
 
-# Step 2: Load the Excel file
-df = pd.read_excel(file_path, sheet_name=sheet_name)
+try:
+    df = pd.read_excel(file_path, sheet_name=sheet_name)
+except Exception as e:
+    print(f"Error loading Excel file: {e}")
+
 
 # Step 3: Filter out the "green status" questions (Assume status column is 'G')
 df_filtered = df[df['G'].str.lower() != 'green']
@@ -60,3 +63,4 @@ def display_questions():
 
 if __name__ == '__main__':
     app.run(debug=True)
+    
