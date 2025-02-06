@@ -46,9 +46,10 @@ def load_questions():
                 continue
 
             incorrect_answers = [
-                str(question_row.get(col, '/')).strip() for col in ['Answer 2', 'Answer 3', 'Answer 4', 'Answer 5']
-                if str(question_row.get(col, '/')).strip() not in ['/', '', 'nan']
+            question_row.get(col, '/') for col in ['Answer 2', 'Answer 3', 'Answer 4', 'Answer 5']
+            if str(question_row.get(col, '/')).strip() not in ['/', 'nan', 'None']
             ]
+
 
             # Ensure we have at least 3 incorrect answers before proceeding
             if len(incorrect_answers) < 3:
