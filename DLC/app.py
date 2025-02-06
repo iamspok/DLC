@@ -52,7 +52,7 @@ def load_questions():
 
 
             # Ensure we have at least 3 incorrect answers before proceeding
-            if len(incorrect_answers) < 3:
+            if len(incorrect_answers) < 2:
                 continue
 
             answers = [correct_answer] + random.sample(incorrect_answers, min(3, len(incorrect_answers)))
