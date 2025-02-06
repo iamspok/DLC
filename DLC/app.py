@@ -13,49 +13,47 @@ def load_questions():
     try:
         file_path = 'DLC Question Bank.xlsx'
         sheet_name = 'Question Bank (EN)'
-        
-        # Ensure file exists (important for Heroku deployment)
+
         if not os.path.exists(file_path):
             print(f"Error: File '{file_path}' not found.")
             return
-        
-        # Load the Excel file
+
         df = pd.read_excel(file_path, sheet_name=sheet_name, engine='openpyxl')
-        print("Columns in Excel:", df.columns.tolist())
-        
-        # Ensure 'Status' column exists before filtering
+
         if 'Status' not in df.columns or 'Questions' not in df.columns:
             print("Error: Required columns missing from Excel file.")
             return
-        
-        # Filter out "green status" questions
-        df_filtered = df[df['Status'].astype(str).str.lower() != 'green']
+
+        # Filter out "green" status AND drop rows with missing questions
+        df_filtered = df[df['Status'].astype(str).str.lower() != 'green'].dropna(subset=['Questions'])
+
         print("Filtered DataFrame:", df_filtered.head())
-        
-        selected_questions = []  # Reset in case of reloading
-        
-        # Select random questions
+
+        selected_questions = []  
+
         while len(selected_questions) < 15 and not df_filtered.empty:
             question_row = df_filtered.sample(n=1).iloc[0]
-            
-            question = question_row.get('Questions', 'Unknown Question')
-            correct_answer = question_row.get('Correct Answer', 'Unknown Answer')
-            
-            # Get incorrect answers, ignoring '/' placeholders
+
+            question = question_row.get('Questions', '').strip()
+            correct_answer = question_row.get('Correct Answer', '').strip()
+
+            if not question or not correct_answer:  # Skip if question or answer is missing
+                continue
+
             incorrect_answers = [
-                question_row.get(col, '/') for col in ['Answer 2', 'Answer 3', 'Answer 4', 'Answer 5']
-                if question_row.get(col, '/') != '/'
+                str(question_row.get(col, '/')).strip() for col in ['Answer 2', 'Answer 3', 'Answer 4', 'Answer 5']
+                if str(question_row.get(col, '/')).strip() not in ['/', '', 'nan']
             ]
-            
-            # Shuffle answers
+
             answers = [correct_answer] + random.sample(incorrect_answers, min(3, len(incorrect_answers)))
             random.shuffle(answers)
-            
+
             selected_questions.append({
                 'question': question,
                 'answers': answers,
                 'correct_answer': correct_answer
             })
+
     except Exception as e:
         print(f"Error loading questions: {e}")
 
