@@ -24,26 +24,35 @@ def load_questions():
             print("Error: Required columns missing from Excel file.")
             return
 
-        # Filter out "green" status AND drop rows with missing questions
-        df_filtered = df[df['Status'].astype(str).str.lower() != 'green'].dropna(subset=['Questions'])
+        # Filter out "green" status AND drop rows with missing questions or answers
+        df_filtered = df[df['Status'].astype(str).str.lower() != 'green'].dropna(subset=['Questions', 'Correct Answer'])
 
-        print("Filtered DataFrame:", df_filtered.head())
+        print(f"Total questions in Excel: {len(df)}")
+        print(f"Questions after filtering 'green' status: {len(df_filtered)}")
 
-        selected_questions = []  
+        # If there are fewer than 15 questions, just take as many as possible
+        num_questions = min(15, len(df_filtered))
 
-        while len(selected_questions) < 15 and not df_filtered.empty:
-            question_row = df_filtered.sample(n=1).iloc[0]
+        # Select 15 (or available) random questions at once
+        selected_rows = df_filtered.sample(n=num_questions)
 
-            question = question_row.get('Questions', '').strip()
-            correct_answer = question_row.get('Correct Answer', '').strip()
+        selected_questions = []  # Reset in case of reloading
 
-            if not question or not correct_answer:  # Skip if question or answer is missing
+        for _, question_row in selected_rows.iterrows():
+            question = question_row['Questions'].strip()
+            correct_answer = question_row['Correct Answer'].strip()
+
+            if not question or not correct_answer:  # Skip if question or correct answer is missing
                 continue
 
             incorrect_answers = [
                 str(question_row.get(col, '/')).strip() for col in ['Answer 2', 'Answer 3', 'Answer 4', 'Answer 5']
                 if str(question_row.get(col, '/')).strip() not in ['/', '', 'nan']
             ]
+
+            # Ensure we have at least 3 incorrect answers before proceeding
+            if len(incorrect_answers) < 3:
+                continue
 
             answers = [correct_answer] + random.sample(incorrect_answers, min(3, len(incorrect_answers)))
             random.shuffle(answers)
@@ -54,8 +63,11 @@ def load_questions():
                 'correct_answer': correct_answer
             })
 
+        print(f"Final selected questions count: {len(selected_questions)}")
+
     except Exception as e:
         print(f"Error loading questions: {e}")
+
 
 # Load questions on startup
 load_questions()
