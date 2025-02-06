@@ -3,7 +3,6 @@ import random
 import pandas as pd
 from flask import Flask, jsonify, render_template
 
-
 app = Flask(__name__)
 
 # Initialize selected_questions to avoid undefined variable errors
@@ -24,7 +23,7 @@ try:
 
     # Step 3: Select random questions
     while len(selected_questions) < 15:
-        question_row = df_filtered.sample(n=1).iloc
+        question_row = df_filtered.sample(n=1).iloc[0]
         print("Selected question row:", question_row.to_dict())
         question = question_row['Questions']
         correct_answer = question_row['Correct Answer']
