@@ -67,9 +67,12 @@ def display_questions():
     try:
         if not selected_questions:
             return jsonify({'error': 'No questions loaded. Please check the Excel file or server logs.'})
+
+        print("DEBUG: Passing questions to template", selected_questions)  # Debugging
         return render_template('quiz.html', questions=selected_questions)
     except Exception as e:
         return jsonify({'error': str(e)})
+
 
 if __name__ == '__main__':
     app.run(debug=True)
