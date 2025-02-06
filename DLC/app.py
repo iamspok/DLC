@@ -1,24 +1,32 @@
 import os
+import time
 import random
 import pandas as pd
 from flask import Flask, jsonify, render_template
 
 app = Flask(__name__)
 
-# Global variable for selected questions
 selected_questions = []
+last_load_time = 0  # or None
+CACHE_DURATION = 60 * 60  # 60 minutes in seconds
 
-def load_questions():
+def load_questions(force_reload=False):
     """
-    Loads questions from an Excel file and populates `selected_questions`.
-    It filters out:
-      1) Rows with 'green' status,
-      2) Rows missing 'Questions' or 'Correct Answer',
-      3) Rows that do not have at least one valid incorrect answer
-         (or adjust logic if you truly need 3).
-    Then it samples up to 15 questions from what remains.
+    Loads questions from the Excel file, unless:
+      - We already loaded them recently, and
+      - The cache hasn't expired yet.
+    
+    Set `force_reload=True` if you want an immediate refresh (optional).
     """
-    global selected_questions
+    global selected_questions, last_load_time
+
+    # Check if the cache is still fresh
+    current_time = time.time()
+    if not force_reload and (current_time - last_load_time) < CACHE_DURATION and selected_questions:
+        print("Cache is still valid; skipping reload.")
+        return  # Use existing questions
+
+    print("Loading questions from the Excel file...")
 
     try:
         file_path = 'DLC Question Bank.xlsx'
@@ -30,75 +38,56 @@ def load_questions():
 
         df = pd.read_excel(file_path, sheet_name=sheet_name, engine='openpyxl')
 
-        # Ensure required columns exist
         required_cols = ['Status', 'Questions', 'Correct Answer']
         for col in required_cols:
             if col not in df.columns:
                 print(f"Error: Required column '{col}' missing in Excel.")
                 return
 
-        # 1) Filter out rows with 'green' status
+        # Filter out 'green' status
         df_filtered = df[df['Status'].astype(str).str.lower() != 'green']
 
-        # 2) Drop rows that have missing question or correct answer
+        # Drop rows missing question or correct answer
         df_filtered = df_filtered.dropna(subset=['Questions', 'Correct Answer'])
 
-        # 3) Ensure there is at least one valid incorrect answer
-        #    (If you actually require 3 incorrect answers, adjust the condition.)
+        # Ensure there's at least one valid incorrect answer
         answer_cols = ['Answer 2', 'Answer 3', 'Answer 4', 'Answer 5']
 
         def has_valid_incorrect_answers(row):
-            # Build a list of any non-empty, non-'/', non-'nan', non-'None' answers
             valid_incorrects = []
             for col in answer_cols:
                 val = row.get(col, '')
                 val_str = str(val).strip().lower()
-
-                # Discard if it's empty, '/', 'nan', or 'none'
                 if val_str not in ['', '/', 'nan', 'none']:
                     valid_incorrects.append(val_str)
-
-            # Return True if there's at least 1 valid incorrect answer
-            # If you truly need 3, use: return len(valid_incorrects) >= 3
             return len(valid_incorrects) >= 1
 
         df_filtered = df_filtered[df_filtered.apply(has_valid_incorrect_answers, axis=1)]
 
-        # Now df_filtered has only rows with:
-        #   - Non-green status
-        #   - Non-empty 'Questions' and 'Correct Answer'
-        #   - At least 1 valid incorrect answer
         print(f"Total questions after filtering: {len(df_filtered)}")
 
-        # 4) Sample up to 15 questions
+        # Sample up to 15
         num_questions = min(15, len(df_filtered))
         if num_questions == 0:
             print("No valid questions available after filtering!")
             return
 
-        selected_rows = df_filtered.sample(n=num_questions, random_state=None)
+        selected_rows = df_filtered.sample(n=num_questions)
 
-        # Clear out previously selected questions
         selected_questions.clear()
-
-        # Build the final list of question dictionaries
         for _, question_row in selected_rows.iterrows():
             question = question_row['Questions'].strip()
             correct_answer = question_row['Correct Answer'].strip()
 
-            # Gather possible incorrect answers (already validated)
+            # Possible incorrect answers
             incorrect_answers = []
             for col in answer_cols:
                 val = question_row.get(col, '')
                 val_str = str(val).strip()
-                # Check again if valid
                 if val_str.lower() not in ['', '/', 'nan', 'none']:
                     incorrect_answers.append(val_str)
 
-            # Pick up to 3 from the incorrect answers
             chosen_incorrects = random.sample(incorrect_answers, min(3, len(incorrect_answers)))
-
-            # Combine correct + chosen incorrect and shuffle
             answers = [correct_answer] + chosen_incorrects
             random.shuffle(answers)
 
@@ -110,26 +99,28 @@ def load_questions():
 
         print(f"Final selected questions count: {len(selected_questions)}")
 
+        # Update the load time
+        last_load_time = time.time()
+
     except Exception as e:
         print(f"Error loading questions: {e}")
-
-# Load questions on startup
-load_questions()
 
 @app.route('/')
 def display_questions():
     """
-    Route that renders a template or returns JSON if no questions are loaded.
+    Whenever this route is accessed, we'll refresh questions
+    only if the cache is expired.
     """
-    try:
-        if not selected_questions:
-            return jsonify({'error': 'No questions loaded. Please check the Excel file or server logs.'})
+    # Only reload if cache expired (or first time)
+    load_questions()
 
-        # Pass the questions to the template
-        return render_template('quiz.html', questions=selected_questions)
-    except Exception as e:
-        return jsonify({'error': str(e)})
+    if not selected_questions:
+        return jsonify({'error': 'No questions loaded. Check server logs or Excel file.'})
+
+    return render_template('quiz.html', questions=selected_questions)
 
 if __name__ == '__main__':
+    # Initial load at startup (optional)
+    load_questions()
     app.run(debug=True)
  
