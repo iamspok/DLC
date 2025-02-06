@@ -8,13 +8,13 @@
 <body>
     <h1>Quiz Time!</h1>
     <form method="POST" action="/submit">
-        {% for idx, question in enumerate(questions) %}
+        {% for question in questions %}
             <div>
-                <p>{{ idx + 1 }}. {{ question['question'] }}</p>
+                <p>{{ loop.index }}. {{ question['question'] }}</p>
                 <ul>
-                    {% for ans_idx, answer in enumerate(question['answers']) %}
+                    {% for answer in question['answers'] %}
                         <li>
-                            <input type="radio" name="q{{ idx }}" value="{{ answer }}"> {{ answer }}
+                            <input type="radio" name="q{{ loop.index0 }}" value="{{ answer }}"> {{ answer }}
                         </li>
                     {% endfor %}
                 </ul>
