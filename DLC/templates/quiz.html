@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quiz</title>
+    <title>Dynamica Learning Cycle</title>
 </head>
 <body>
-    <h1>Quiz Time!</h1>
+    <h1>Let's Start!</h1>
     <form method="POST" action="/submit">
         {% for question in questions %}
             <div>
@@ -14,7 +14,7 @@
                 <ul>
                     {% for answer in question['answers'] %}
                         <li>
-                            <input type="radio" name="q{{ loop.index0 }}" value="{{ answer }}"> {{ answer }}
+                            <input type="radio" name="q{{ loop.index }}" value="{{ answer }}"> {{ answer }}
                         </li>
                     {% endfor %}
                 </ul>
