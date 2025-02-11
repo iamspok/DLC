@@ -44,7 +44,7 @@
                 <ul>
                     {% for answer in question['answers'] %}
                         <li>
-                            <input type="radio" name="question_{{ loop.parent.loop.index0 }}" value="{{ answer }}" required> {{ answer }}
+                            <input type="radio" name="question_{{ loop.index }}" value="{{ answer }}" required> {{ answer }}
                         </li>
                     {% endfor %}
                 </ul>
