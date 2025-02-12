@@ -58,7 +58,7 @@
         </div>
 
         <!-- Quiz Questions -->
-       {% for idx, question in questions %}
+       {% for question in questions %}
     <p>{{ loop.index }}. {{ question['question'] }}</p>
             <div>
                 <p>{{ idx + 1 }}. {{ question['question'] }}</p>
