@@ -26,7 +26,7 @@ def load_questions_from_supabase():
             {
                 "question": q["question"],
                 "correct_answer": q["correct_answer"],
-                "answers": eval(q["answers"])  # Convert string back to list
+                "answers": eval(q["answers"])  # Convert string back to lis
             }
             for q in response.data
         ]
