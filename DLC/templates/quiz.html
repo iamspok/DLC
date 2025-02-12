@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quiz</title>
     <style>
-        /* Optional: Add some basic styling to improve the layout */
+        /* Optional: Add some basic styling */
         body {
             font-family: Arial, sans-serif;
             margin: 20px;
@@ -37,20 +37,20 @@
 </head>
 <body>
     <h1>Quiz Time!</h1>
-<form method="POST" action="/submit">
-    {% for question in questions %}
-    <div>
-        <p>{{ loop.index }}. {{ question['question'] }}</p>
-        <ul>
-            {% for answer in question['answers'] %}
-                <li>
-                    <input type="radio" name="question_{{ question['id'] }}" value="{{ answer }}" required> {{ answer }}
-                </li>
-            {% endfor %}
-        </ul>
-    </div>
-    {% endfor %}
-    <button type="submit">Submit</button>
-</form>
+    <form method="POST" action="/submit">
+        {% for question in questions %}
+            <div>
+                <p>{{ loop.index }}. {{ question['question'] }}</p>
+                <ul>
+                    {% for answer in question['answers'] %}
+                        <li>
+                            <input type="radio" name="question_{{ loop.parent.index }}" value="{{ answer }}" required> {{ answer }}
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endfor %}
+        <button type="submit">Submit</button>
+    </form>
 </body>
 </html>
