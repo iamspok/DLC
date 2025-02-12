@@ -58,13 +58,13 @@
         </div>
 
         <!-- Quiz Questions -->
-        {% for idx, question in questions %}
+        {% for question in questions %}
         <div>
-            <p>{{ idx + 1 }}. {{ question['question'] }}</p>
+            <p>{{ loop.index }}. {{ question['question'] }}</p>
             <ul>
                 {% for answer in question['answers'] %}
                     <li>
-                        <input type="radio" name="question_{{ idx }}" value="{{ answer }}" required> {{ answer }}
+                        <input type="radio" name="question_{{ loop.index }}" value="{{ answer }}" required> {{ answer }}
                     </li>
                 {% endfor %}
             </ul>
