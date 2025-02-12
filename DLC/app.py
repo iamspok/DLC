@@ -138,9 +138,12 @@ def load_questions(force_reload=False):
 @app.route('/')
 def display_questions():
     """Display the quiz questions."""
+    print("📌 Loading questions...")  # Debugging line
     load_questions()
+    print(f"📌 Loaded {len(selected_questions)} questions.")  # Debugging line
 
     if not selected_questions:
+        print("❌ No questions loaded!")  # Debugging line
         return jsonify({'error': 'No questions loaded. Check server logs or Excel file.'})
 
     return render_template('quiz.html', questions=selected_questions)
