@@ -1,13 +1,14 @@
 import os
 import time
 import random
+import json
 import pandas as pd
 from flask import Flask, jsonify, render_template
 from supabase import create_client
 
 # Supabase Setup
 SUPABASE_URL = "https://dfckzgwvefprwuythpnl.supabase.co"
-SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRmY2t6Z3d2ZWZwcnd1eXRocG5sIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzkyNjM0MTEsImV4cCI6MjA1NDgzOTQxMX0.5EnzP0Ck3VhxBOVoVX_nsozSU8OYe57aySSCPH2BCWU"
+SUPABASE_KEY = "YOUR_SUPABASE_KEY"  # Ensure this is stored securely
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 app = Flask(__name__)
@@ -24,9 +25,10 @@ def load_questions_from_supabase():
         print("Using cached questions from Supabase.")
         return [
             {
+                "id": q["id"],  # Ensure ID is included
                 "question": q["question"],
                 "correct_answer": q["correct_answer"],
-                "answers": eval(q["answers"])  # Convert string back to lis
+                "answers": json.loads(q["answers"])  # Convert string to list properly
             }
             for q in response.data
         ]
@@ -36,9 +38,10 @@ def save_questions_to_supabase(questions):
     """Save questions to Supabase."""
     for q in questions:
         data = {
+            "id": q["id"],  # Ensure ID is stored
             "question": q["question"],
             "correct_answer": q["correct_answer"],
-            "answers": str(q["answers"]),  # Convert list to string
+            "answers": json.dumps(q["answers"]),  # Convert list to JSON string
             "timestamp": int(time.time())
         }
         supabase.table("quiz_questions").insert(data).execute()
@@ -87,7 +90,7 @@ def load_questions_from_excel():
     selected_rows = df_filtered.sample(n=min(15, len(df_filtered)))
 
     questions = []
-    for _, question_row in selected_rows.iterrows():
+    for i, (_, question_row) in enumerate(selected_rows.iterrows()):
         question = question_row['Questions'].strip()
         correct_answer = question_row['Correct Answer'].strip()
 
@@ -103,9 +106,10 @@ def load_questions_from_excel():
         random.shuffle(answers)
 
         questions.append({
-            'question': question,
-            'answers': answers,
-            'correct_answer': correct_answer
+            "id": i + 1,  # Generate a unique ID if missing
+            "question": question,
+            "answers": answers,
+            "correct_answer": correct_answer
         })
 
     return questions
