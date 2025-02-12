@@ -1,7 +1,7 @@
 import os
 import time
 import random
-import json
+import json  # Ensure this is here!
 import pandas as pd
 from flask import Flask, jsonify, render_template
 from supabase import create_client
@@ -46,22 +46,27 @@ def save_questions_to_supabase(questions):
         }
         supabase.table("quiz_questions").insert(data).execute()
 
-def load_questions_from_excel():
-    """Loads and filters questions from the Excel file."""
-    file_path = 'DLC Question Bank.xlsx'
-    sheet_name = 'Question Bank (EN)'
+def load_questions_from_supabase():
+    """Load questions from Supabase if available."""
+    try:
+        one_month_ago = int(time.time()) - CACHE_DURATION
+        response = supabase.table("quiz_questions").select("*").gte("timestamp", one_month_ago).execute()
 
-    if not os.path.exists(file_path):
-        print(f"Error: File '{file_path}' not found.")
-        return []
-
-    df = pd.read_excel(file_path, sheet_name=sheet_name, engine='openpyxl')
-
-    required_cols = ['Status', 'Questions', 'Correct Answer']
-    for col in required_cols:
-        if col not in df.columns:
-            print(f"Error: Required column '{col}' missing in Excel.")
-            return []
+        if response.data:
+            print("Using cached questions from Supabase.")
+            return [
+                {
+                    "id": q.get("id", index),  # Ensure there's always an ID
+                    "question": q["question"],
+                    "correct_answer": q["correct_answer"],
+                    "answers": json.loads(q["answers"])  # Fix JSON parsing
+                }
+                for index, q in enumerate(response.data)
+            ]
+        return None
+    except Exception as e:
+        print(f"Error loading from Supabase: {e}")
+        return None
 
     # Filter out 'green' status
     df_filtered = df[df['Status'].astype(str).str.lower() != 'green']
