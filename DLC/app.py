@@ -121,7 +121,7 @@ def display_questions():
     if not selected_questions:
         return jsonify({'error': 'No questions loaded. Check server logs or Excel file.'})
 
-    return render_template('quiz.html', questions=selected_questions)
+    return render_template('quiz.html', questions=enumerate(selected_questions))
 
 if __name__ == '__main__':
     load_questions()
