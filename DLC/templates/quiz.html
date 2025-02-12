@@ -37,7 +37,7 @@
 <body>
     <h1>Quiz Time!</h1>
     <form method="POST" action="/submit">
-        {% for idx, question in enumerate(questions) %}
+        {% for idx, question in questions|enumerate %}
             <div>
                 <p>{{ idx + 1 }}. {{ question['question'] }}</p>
                 <ul>
