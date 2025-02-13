@@ -1,3 +1,42 @@
+<!-- index.html - Landing Page -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Start Quiz</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; margin: 20px; }
+        form { max-width: 400px; margin: auto; }
+        div { margin-bottom: 20px; }
+        button { padding: 10px 20px; font-size: 16px; }
+    </style>
+</head>
+<body>
+    <h1>Welcome to the Quiz</h1>
+    <form action="quiz.html" method="GET">
+        <div>
+            <label for="email">Email Address:</label>
+            <input type="email" name="email" required>
+        </div>
+        <div>
+            <label for="site">Select your site:</label>
+            <select name="site" required>
+                <option value="" disabled selected>Select your site</option>
+                <option value="Cary CRC">Cary CRC</option>
+                <option value="Newcastle CRC">Newcastle CRC</option>
+                <option value="Pune CRC">Pune CRC</option>
+                <option value="5CA">5CA</option>
+                <option value="Concentrix">Concentrix</option>
+                <option value="PTW">PTW</option>
+            </select>
+        </div>
+        <button type="submit">Start Quiz</button>
+    </form>
+</body>
+</html>
+
+<!-- quiz.html - Quiz Page -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -5,76 +44,53 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quiz</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-        }
-        h1 {
-            text-align: center;
-        }
-        form {
-            max-width: 600px;
-            margin: auto;
-        }
-        div {
-            margin-bottom: 20px;
-        }
-        ul {
-            list-style-type: none;
-            padding: 0;
-        }
-        li {
-            margin-bottom: 10px;
-        }
-        button {
-            display: block;
-            margin: 20px auto;
-            padding: 10px 20px;
-            font-size: 16px;
-        }
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        form { max-width: 600px; margin: auto; }
+        div { margin-bottom: 20px; }
+        ul { list-style-type: none; padding: 0; }
+        li { margin-bottom: 10px; }
+        button { padding: 10px 20px; font-size: 16px; }
     </style>
 </head>
 <body>
     <h1>Quiz Time!</h1>
-    
-<form method="POST" action="/submit">
-    <!-- User Details -->
-    <div>
-        <label for="email">Email Address:</label>
-        <input type="email" name="email" required>
-    </div>
-    
-    <div>
-        <label for="site">Select your site:</label>
-        <select name="site" required>
-            <option value="" disabled selected>Select your site</option>
-            <option value="Cary CRC">Cary CRC</option>
-            <option value="Newcastle CRC">Newcastle CRC</option>
-            <option value="Pune CRC">Pune CRC</option>
-            <option value="5CA">5CA</option>
-            <option value="Concentrix">Concentrix</option>
-            <option value="PTW">PTW</option>
-        </select>
-    </div>
+    <form method="POST" action="/submit">
+        <input type="hidden" name="email" value="{{ email }}">
+        <input type="hidden" name="site" value="{{ site }}">
+        
+        {% for idx, question in questions %}
+            <div>
+                <p>{{ idx + 1 }}. {{ question['question'] }}</p>
+                <ul>
+                    {% for answer in question['answers'] %}
+                        <li>
+                            <input type="radio" name="question_{{ idx + 1 }}" value="{{ answer }}" required> {{ answer }}
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endfor %}
+        
+        <button type="submit">Submit</button>
+    </form>
+</body>
+</html>
 
-    <!-- Quiz Questions -->
-    {% for question in questions %}
-    <div>
-        <p>{{ loop.index }}. {{ question['question'] }}</p>
-        <ul>
-            {% for answer in question['answers'] %}
-                <li>
-                    <input type="radio" name="{{ question['name'] }}" value="{{ answer }}" required>
-                    {{ answer }}
-                </li>
-            {% endfor %}
-        </ul>
-    </div>
-    {% endfor %}
-    
-    <button type="submit">Submit</button>
-</form>
-
-</form>
+<!-- results.html - Results Page -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Results</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; margin: 20px; }
+        div { margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+    <h1>Quiz Results</h1>
+    <p>Your score: {{ score }}</p>
+    <p>Thank you for participating!</p>
 </body>
 </html>
