@@ -3,7 +3,7 @@ import time
 import csv
 import random
 import pandas as pd
-from flask import Flask, request, jsonify, render_template, send_file, redirect, url_for
+from flask import Flask, request, jsonify, render_template, send_file, session, redirect, url_for
 from supabase import create_client
 
 # Supabase Setup
@@ -12,6 +12,8 @@ SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJ
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 app = Flask(__name__)
+
+app.secret_key = '12345'
 
 selected_questions = []
 CACHE_DURATION = 60 * 60 * 24 * 30  # 30 days in seconds
@@ -135,22 +137,26 @@ def display_questions():
     """Display the quiz questions page after collecting user details."""
     global selected_questions
 
-    # Ensure we have questions loaded
+    # Ensure questions are loaded
     load_questions()
 
-    # Check if it's a POST request with user data
     if request.method == 'POST':
         email = request.form.get('email')
         site = request.form.get('site')
 
-        # Store user info in session (to remember it between pages)
+        # If email or site is missing, redirect to start page
+        if not email or not site:
+            return redirect(url_for('start'))
+
+        # Store user details in session
         session['email'] = email
         session['site'] = site
 
-    # Check if user details are missing (redirect them back)
+    # If the user details are missing, send them back to start page
     if 'email' not in session or 'site' not in session:
         return redirect(url_for('start'))
 
+    # Render the quiz page with loaded questions
     return render_template('quiz.html', questions=selected_questions)
 
 
