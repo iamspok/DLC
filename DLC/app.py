@@ -126,11 +126,15 @@ def load_questions(force_reload=False):
 
 @app.route('/')
 def display_questions():
-    """Display the quiz questions."""
+    """Display the quiz questions with unique IDs."""
     load_questions()
 
     if not selected_questions:
         return jsonify({'error': 'No questions loaded. Check server logs or Excel file.'})
+
+    # Assign unique names manually
+    for idx, question in enumerate(selected_questions):
+        question['name'] = f"question_{idx+1}"  # Generates question_1, question_2, etc.
 
     return render_template('quiz.html', questions=selected_questions)
 
