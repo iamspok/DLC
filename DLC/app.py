@@ -141,51 +141,38 @@ def display_questions():
 
 @app.route('/submit', methods=['POST'])
 def submit_quiz():
-    """Handles quiz submission."""
+    """Handles quiz submission and stores results in Supabase."""
     email = request.form.get('email')
     site = request.form.get('site')
 
     if not email or not site:
-        return "Missing email or site information!", 400
+        return "Missing email or site!", 400  # Return error if missing data
 
-    user_answers = {}
+    # Track scores
+    scores = []
     correct_count = 0
 
-    for question in selected_questions:
-        question_id = question['name']  # Using manually assigned unique names
-        user_answer = request.form.get(question_id)
+    for idx, question in enumerate(selected_questions, start=1):
+        user_answer = request.form.get(f'question_{idx}')
         correct_answer = question['correct_answer']
 
-        user_answers[question_id] = {
-            "user_answer": user_answer,
-            "correct_answer": correct_answer,
-            "is_correct": user_answer == correct_answer
-        }
+        # Assign 1 for correct, 0 for incorrect
+        score = 1 if user_answer == correct_answer else 0
+        scores.append(score)
 
-        if user_answer == correct_answer:
+        if score == 1:
             correct_count += 1
 
-    total_questions = len(selected_questions)
-    overall_score = correct_count
-
-    submission_data = {
+    # Insert into Supabase
+    supabase.table("quiz_results").insert({
         "email": email,
         "site": site,
-        "overall_score": overall_score,
-        "individual_scores": json.dumps(user_answers),
-        "timestamp": int(time.time())
-    }
+        "overall_score": correct_count,
+        **{f"question_{idx}_score": score for idx, score in enumerate(scores, start=1)}
+    }).execute()
 
-    print("Submitting to Supabase:", submission_data)  # Debugging
+    return f"Quiz submitted! Your score: {correct_count}/15"
 
-    try:
-        response = supabase.table("quiz_results").insert(submission_data).execute()
-        print("Supabase response:", response)
-    except Exception as e:
-        print("Supabase error:", e)
-        return "Error submitting quiz", 500
-
-    return f"Quiz submitted! Your score: {overall_score}/{total_questions}"
 
 if __name__ == '__main__':
     load_questions()
