@@ -1,9 +1,9 @@
 import os
 import time
-import json
+import csv
 import random
 import pandas as pd
-from flask import Flask, request, jsonify, render_template, redirect, url_for
+from flask import Flask, request, jsonify, render_template, send_file, redirect, url_for
 from supabase import create_client
 
 # Supabase Setup
@@ -15,6 +15,7 @@ app = Flask(__name__)
 
 selected_questions = []
 CACHE_DURATION = 60 * 60 * 24 * 30  # 30 days in seconds
+CSV_FILE = "quiz_results.csv"  # CSV file for results storage
 
 def load_questions_from_supabase():
     """Load questions from Supabase if available."""
@@ -84,13 +85,13 @@ def load_questions_from_excel():
     selected_rows = df_filtered.sample(n=min(15, len(df_filtered)))
 
     questions = []
-    for idx, question_row in enumerate(selected_rows.itertuples(), start=1):
-        question = question_row.Questions.strip()
-        correct_answer = question_row._2.strip()  # Assuming Correct Answer is in the second column
+    for idx, question_row in enumerate(selected_rows.iterrows(), start=1):
+        question = question_row[1]['Questions'].strip()
+        correct_answer = question_row[1]['Correct Answer'].strip()
 
         incorrect_answers = []
         for col in answer_cols:
-            val = getattr(question_row, col, '')
+            val = question_row[1].get(col, '')
             val_str = str(val).strip()
             if val_str.lower() not in ['', '/', 'nan', 'none']:
                 incorrect_answers.append(val_str)
@@ -103,7 +104,7 @@ def load_questions_from_excel():
             'question': question,
             'answers': answers,
             'correct_answer': correct_answer,
-            'name': f"question_{idx}"  # Ensure unique question names
+            'id': f"question_{idx}"
         })
 
     return questions
@@ -125,6 +126,11 @@ def load_questions(force_reload=False):
         save_questions_to_supabase(selected_questions)
 
 @app.route('/')
+def start_quiz():
+    """Landing page where users enter details before starting the quiz."""
+    return render_template('start.html')
+
+@app.route('/quiz', methods=['POST'])
 def display_questions():
     """Display the quiz questions with unique IDs."""
     load_questions()
@@ -132,12 +138,7 @@ def display_questions():
     if not selected_questions:
         return jsonify({'error': 'No questions loaded. Check server logs or Excel file.'})
 
-    # Ensure unique names for each question
-    for idx, question in enumerate(selected_questions):
-        question['name'] = f"question_{idx+1}"  # Generates question_1, question_2, etc.
-
     return render_template('quiz.html', questions=selected_questions)
-
 
 @app.route('/submit', methods=['POST'])
 def submit_quiz():
@@ -145,53 +146,37 @@ def submit_quiz():
     email = request.form.get('email')
     site = request.form.get('site')
 
-    # Track correct answers
+    user_answers = {}
     correct_count = 0
-    question_scores = []
+    question_scores = {}
 
     for idx, question in enumerate(selected_questions):
-        user_answer = request.form.get(f'question_{idx+1}')  # Ensure correct question naming
+        user_answer = request.form.get(f'question_{idx+1}')
         correct_answer = question['correct_answer']
 
-        # Score is 1 if correct, otherwise 0
-        score = 1 if user_answer == correct_answer else 0
-        question_scores.append(score)
+        is_correct = 1 if user_answer == correct_answer else 0
+        question_scores[f'question_{idx+1}_score'] = is_correct
 
-        if score == 1:
-            correct_count += 1  # Count correct answers
+        if is_correct:
+            correct_count += 1
 
     total_questions = len(selected_questions)
-    overall_score = correct_count  # Store as integer
-
-    # Ensure we always send **all** 15 questions (fill missing ones with 0)
-    while len(question_scores) < 15:
-        question_scores.append(0)
+    score = correct_count
 
     # Store in Supabase
     supabase.table("quiz_results").insert({
         "email": email,
         "site": site,
-        "overall_score": overall_score,
-        "question_1_score": question_scores[0],
-        "question_2_score": question_scores[1],
-        "question_3_score": question_scores[2],
-        "question_4_score": question_scores[3],
-        "question_5_score": question_scores[4],
-        "question_6_score": question_scores[5],
-        "question_7_score": question_scores[6],
-        "question_8_score": question_scores[7],
-        "question_9_score": question_scores[8],
-        "question_10_score": question_scores[9],
-        "question_11_score": question_scores[10],
-        "question_12_score": question_scores[11],
-        "question_13_score": question_scores[12],
-        "question_14_score": question_scores[13],
-        "question_15_score": question_scores[14]
+        "score": score,
+        **question_scores
     }).execute()
 
-    return f"Quiz submitted! Your score: {overall_score}"
+    return f"Quiz submitted! Your score: {score}/{total_questions}"
 
-
+@app.route('/admin/results')
+def download_results():
+    """Download results as CSV."""
+    return send_file(CSV_FILE, as_attachment=True)
 
 if __name__ == '__main__':
     load_questions()
