@@ -37,42 +37,42 @@
 <body>
     <h1>Quiz Time!</h1>
     
-    <form method="POST" action="/submit">
-        <!-- User Details -->
-        <div>
-            <label for="email">Email Address:</label>
-            <input type="email" name="email" required>
-        </div>
-        
-        <div>
-            <label for="site">Select your site:</label>
-            <select name="site" required>
-                <option value="" disabled selected>Select your site</option>
-                <option value="Cary CRC">Cary CRC</option>
-                <option value="Newcastle CRC">Newcastle CRC</option>
-                <option value="Pune CRC">Pune CRC</option>
-                <option value="5CA">5CA</option>
-                <option value="Concentrix">Concentrix</option>
-                <option value="PTW">PTW</option>
-            </select>
-        </div>
+   <form method="POST" action="/submit">
+    <!-- User Details -->
+    <div>
+        <label for="email">Email Address:</label>
+        <input type="email" name="email" required>
+    </div>
+    
+    <div>
+        <label for="site">Select your site:</label>
+        <select name="site" required>
+            <option value="" disabled selected>Select your site</option>
+            <option value="Cary CRC">Cary CRC</option>
+            <option value="Newcastle CRC">Newcastle CRC</option>
+            <option value="Pune CRC">Pune CRC</option>
+            <option value="5CA">5CA</option>
+            <option value="Concentrix">Concentrix</option>
+            <option value="PTW">PTW</option>
+        </select>
+    </div>
 
-        <!-- Quiz Questions -->
-{% for question in questions %}
+    <!-- Quiz Questions -->
+    {% for question in questions %}
     <div>
         <p>{{ loop.index }}. {{ question['question'] }}</p>
         <ul>
             {% for answer in question['answers'] %}
                 <li>
-                    <input type="radio" name="{{ question['name'] }}" value="{{ answer }}" required> {{ answer }}
+                    <input type="radio" name="{{ question['name'] }}" value="{{ answer }}" required>
+                    {{ answer }}
                 </li>
             {% endfor %}
         </ul>
     </div>
-{% endfor %}
-
-        
-        <button type="submit">Submit</button>
-    </form>
+    {% endfor %}
+    
+    <button type="submit">Submit</button>
+</form>
 </body>
 </html>
