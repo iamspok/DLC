@@ -1,21 +1,20 @@
 import os
 import time
-import csv
+import json
 import random
 import pandas as pd
-from flask import Flask, request, jsonify, render_template, send_file
+from flask import Flask, request, jsonify, render_template, redirect, url_for
 from supabase import create_client
 
 # Supabase Setup
 SUPABASE_URL = "https://dfckzgwvefprwuythpnl.supabase.co"
-SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRmY2t6Z3d2ZWZwcnd1eXRocG5sIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzkyNjM0MTEsImV4cCI6MjA1NDgzOTQxMX0.5EnzP0Ck3VhxBOVoVX_nsozSU8OYe57aySSCPH2BCWU"
+SUPABASE_KEY = "YOUR_SUPABASE_KEY_HERE"
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 app = Flask(__name__)
 
 selected_questions = []
 CACHE_DURATION = 60 * 60 * 24 * 30  # 30 days in seconds
-CSV_FILE = "quiz_results.csv"  # CSV file for results storage
 
 def load_questions_from_supabase():
     """Load questions from Supabase if available."""
@@ -85,13 +84,13 @@ def load_questions_from_excel():
     selected_rows = df_filtered.sample(n=min(15, len(df_filtered)))
 
     questions = []
-    for _, question_row in selected_rows.iterrows():
-        question = question_row['Questions'].strip()
-        correct_answer = question_row['Correct Answer'].strip()
+    for idx, question_row in enumerate(selected_rows.itertuples(), start=1):
+        question = question_row.Questions.strip()
+        correct_answer = question_row._2.strip()  # Assuming Correct Answer is in the second column
 
         incorrect_answers = []
         for col in answer_cols:
-            val = question_row.get(col, '')
+            val = getattr(question_row, col, '')
             val_str = str(val).strip()
             if val_str.lower() not in ['', '/', 'nan', 'none']:
                 incorrect_answers.append(val_str)
@@ -103,7 +102,8 @@ def load_questions_from_excel():
         questions.append({
             'question': question,
             'answers': answers,
-            'correct_answer': correct_answer
+            'correct_answer': correct_answer,
+            'name': f"question_{idx}"  # Ensure unique question names
         })
 
     return questions
@@ -132,10 +132,6 @@ def display_questions():
     if not selected_questions:
         return jsonify({'error': 'No questions loaded. Check server logs or Excel file.'})
 
-    # Assign unique names manually
-    for idx, question in enumerate(selected_questions):
-        question['name'] = f"question_{idx+1}"  # Generates question_1, question_2, etc.
-
     return render_template('quiz.html', questions=selected_questions)
 
 @app.route('/submit', methods=['POST'])
@@ -144,39 +140,47 @@ def submit_quiz():
     email = request.form.get('email')
     site = request.form.get('site')
 
+    if not email or not site:
+        return "Missing email or site information!", 400
+
     user_answers = {}
     correct_count = 0
 
-    for idx, question in enumerate(selected_questions):
-        user_answer = request.form.get(f'question_{idx}')
+    for question in selected_questions:
+        question_id = question['name']  # Using manually assigned unique names
+        user_answer = request.form.get(question_id)
         correct_answer = question['correct_answer']
 
-        user_answers[question['question']] = {
+        user_answers[question_id] = {
             "user_answer": user_answer,
-            "correct_answer": correct_answer
+            "correct_answer": correct_answer,
+            "is_correct": user_answer == correct_answer
         }
 
         if user_answer == correct_answer:
             correct_count += 1
 
     total_questions = len(selected_questions)
-    score = f"{correct_count}/{total_questions}"
+    overall_score = correct_count
 
-    # Store in Supabase
-    supabase.table("quiz_results").insert({
+    submission_data = {
         "email": email,
         "site": site,
-        "score": score,
-        "answers": str(user_answers),
+        "overall_score": overall_score,
+        "individual_scores": json.dumps(user_answers),
         "timestamp": int(time.time())
-    }).execute()
+    }
 
-    return f"Quiz submitted! Your score: {score}"
+    print("Submitting to Supabase:", submission_data)  # Debugging
 
-@app.route('/admin/results')
-def download_results():
-    """Download results as CSV."""
-    return send_file(CSV_FILE, as_attachment=True)
+    try:
+        response = supabase.table("quiz_results").insert(submission_data).execute()
+        print("Supabase response:", response)
+    except Exception as e:
+        print("Supabase error:", e)
+        return "Error submitting quiz", 500
+
+    return f"Quiz submitted! Your score: {overall_score}/{total_questions}"
 
 if __name__ == '__main__':
     load_questions()
