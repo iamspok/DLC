@@ -55,24 +55,18 @@
 <body>
     <h1>Quiz Time!</h1>
     <form method="POST" action="/submit">
-        <input type="hidden" name="email" value="{{ email }}">
-        <input type="hidden" name="site" value="{{ site }}">
-        
-        {% for idx, question in questions %}
-            <div>
-                <p>{{ idx + 1 }}. {{ question['question'] }}</p>
-                <ul>
-                    {% for answer in question['answers'] %}
-                        <li>
-                            <input type="radio" name="question_{{ idx + 1 }}" value="{{ answer }}" required> {{ answer }}
-                        </li>
-                    {% endfor %}
-                </ul>
-            </div>
-        {% endfor %}
-        
-        <button type="submit">Submit</button>
-    </form>
+    {% for question in questions %}
+        <p>{{ loop.index }}. {{ question['question'] }}</p>
+        <ul>
+            {% for answer in question['answers'] %}
+                <li>
+                    <input type="radio" name="{{ question['id'] }}" value="{{ answer }}" required> {{ answer }}
+                </li>
+            {% endfor %}
+        </ul>
+    {% endfor %}
+    <button type="submit">Submit</button>
+</form>
 </body>
 </html>
 
