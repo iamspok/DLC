@@ -161,7 +161,7 @@ def submit_quiz():
             correct_count += 1  # Count correct answers
 
     total_questions = len(selected_questions)
-    overall_score = f"{correct_count}/{total_questions}"
+    overall_score = correct_count  # Store as integer
 
     # Ensure we always send **all** 15 questions (fill missing ones with 0)
     while len(question_scores) < 15:
