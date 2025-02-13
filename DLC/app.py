@@ -132,7 +132,12 @@ def display_questions():
     if not selected_questions:
         return jsonify({'error': 'No questions loaded. Check server logs or Excel file.'})
 
+    # Ensure unique names for each question
+    for idx, question in enumerate(selected_questions):
+        question['name'] = f"question_{idx+1}"  # Generates question_1, question_2, etc.
+
     return render_template('quiz.html', questions=selected_questions)
+
 
 @app.route('/submit', methods=['POST'])
 def submit_quiz():
