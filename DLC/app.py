@@ -141,37 +141,56 @@ def display_questions():
 
 @app.route('/submit', methods=['POST'])
 def submit_quiz():
-    """Handles quiz submission and stores results in Supabase."""
+    """Handles quiz submission."""
     email = request.form.get('email')
     site = request.form.get('site')
 
-    if not email or not site:
-        return "Missing email or site!", 400  # Return error if missing data
-
-    # Track scores
-    scores = []
+    # Track correct answers
     correct_count = 0
+    question_scores = []
 
-    for idx, question in enumerate(selected_questions, start=1):
-        user_answer = request.form.get(f'question_{idx}')
+    for idx, question in enumerate(selected_questions):
+        user_answer = request.form.get(f'question_{idx+1}')  # Ensure correct question naming
         correct_answer = question['correct_answer']
 
-        # Assign 1 for correct, 0 for incorrect
+        # Score is 1 if correct, otherwise 0
         score = 1 if user_answer == correct_answer else 0
-        scores.append(score)
+        question_scores.append(score)
 
         if score == 1:
-            correct_count += 1
+            correct_count += 1  # Count correct answers
 
-    # Insert into Supabase
+    total_questions = len(selected_questions)
+    overall_score = f"{correct_count}/{total_questions}"
+
+    # Ensure we always send **all** 15 questions (fill missing ones with 0)
+    while len(question_scores) < 15:
+        question_scores.append(0)
+
+    # Store in Supabase
     supabase.table("quiz_results").insert({
         "email": email,
         "site": site,
-        "overall_score": correct_count,
-        **{f"question_{idx}_score": score for idx, score in enumerate(scores, start=1)}
+        "overall_score": overall_score,
+        "question_1_score": question_scores[0],
+        "question_2_score": question_scores[1],
+        "question_3_score": question_scores[2],
+        "question_4_score": question_scores[3],
+        "question_5_score": question_scores[4],
+        "question_6_score": question_scores[5],
+        "question_7_score": question_scores[6],
+        "question_8_score": question_scores[7],
+        "question_9_score": question_scores[8],
+        "question_10_score": question_scores[9],
+        "question_11_score": question_scores[10],
+        "question_12_score": question_scores[11],
+        "question_13_score": question_scores[12],
+        "question_14_score": question_scores[13],
+        "question_15_score": question_scores[14]
     }).execute()
 
-    return f"Quiz submitted! Your score: {correct_count}/15"
+    return f"Quiz submitted! Your score: {overall_score}"
+
 
 
 if __name__ == '__main__':
