@@ -55,19 +55,20 @@
 <body>
     <h1>Quiz Time!</h1>
     <form method="POST" action="/submit">
-    {% for question in questions %}
+   {% for idx, question in enumerate(questions) %}
     <div>
-        <p><strong>{{ loop.index }}. {{ question['question'] }}</strong></p>
+        <p><strong>{{ idx + 1 }}. {{ question['question'] }}</strong></p>
         <ul>
             {% for answer in question['answers'] %}
                 <li>
-                    <input type="radio" name="question_{{ loop.index }}" value="{{ answer }}" required>
+                    <input type="radio" name="question_{{ idx + 1 }}" value="{{ answer }}" required>
                     {{ answer }}
                 </li>
             {% endfor %}
         </ul>
     </div>
 {% endfor %}
+
     <button type="submit">Submit</button>
 </form>
 </body>
