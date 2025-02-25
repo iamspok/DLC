@@ -61,8 +61,18 @@ def display_questions():
 @app.route('/submit', methods=['POST'])
 def submit_quiz():
     """Handles quiz submission."""
-    email = request.form.get('email')
-    site = request.form.get('site')
+    email = session.get('email')
+    site = session.get('site')
+
+    # If session values are missing, try retrieving from the form
+    if not email:
+        email = request.form.get('email')
+    if not site:
+        site = request.form.get('site')
+
+    # Ensure email and site are never None (Prevents NOT NULL Constraint Violation)
+    if not email or not site:
+        return "Error: Email and site are required!", 400
 
     user_answers = {}
     correct_count = 0
@@ -90,7 +100,6 @@ def submit_quiz():
     }).execute()
 
     return redirect(url_for('results'))
-
 
 @app.route("/results")
 def results():
