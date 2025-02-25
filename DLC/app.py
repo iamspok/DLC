@@ -132,32 +132,20 @@ def start_quiz():
     """Landing page where users enter details before starting the quiz."""
     return render_template('start.html')
 
-@app.route('/quiz', methods=['GET', 'POST'])
+@app.route('/quiz', methods=['POST'])
 def display_questions():
-    """Display the quiz questions page after collecting user details."""
-    global selected_questions
-
-    # Ensure questions are loaded
+    """Display the quiz questions with unique names."""
     load_questions()
 
-    if request.method == 'POST':
-        email = request.form.get('email')
-        site = request.form.get('site')
+    if not selected_questions:
+        return jsonify({'error': 'No questions loaded. Check server logs or Excel file.'})
 
-        # If email or site is missing, redirect to start page
-        if not email or not site:
-            return redirect(url_for('start'))
+    # Assign unique names to each question (question_1, question_2, etc.)
+    for idx, question in enumerate(selected_questions):
+        question['name'] = f"question_{idx+1}"  # Generates question_1, question_2, ..., question_15
 
-        # Store user details in session
-        session['email'] = email
-        session['site'] = site
-
-    # If the user details are missing, send them back to start page
-    if 'email' not in session or 'site' not in session:
-        return redirect(url_for('start'))
-
-    # Render the quiz page with loaded questions
     return render_template('quiz.html', questions=selected_questions)
+
 
 
 @app.route('/submit', methods=['POST'])
