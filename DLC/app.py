@@ -58,41 +58,39 @@ def display_questions():
 
     return render_template("quiz.html", questions=selected_questions)
 
-@app.route("/submit", methods=["POST"])
+@app.route('/submit', methods=['POST'])
 def submit_quiz():
     """Handles quiz submission."""
-    email = session.get("email")
-    site = session.get("site")
+    email = request.form.get('email')
+    site = request.form.get('site')
 
-    if not email or not site:
-        return "Error: Missing email or site. Please restart the quiz.", 400
-
+    user_answers = {}
     correct_count = 0
     question_scores = {}
 
     for idx, question in enumerate(selected_questions):
-        user_answer = request.form.get(f'question_{idx+1}')
-        correct_answer = question["correct_answer"]
+        user_answer = request.form.get(f'question_{idx+1}', '')  # Ensure an empty string instead of None
+        correct_answer = question['correct_answer']
 
-        is_correct = 1 if user_answer == correct_answer else 0
-        question_scores[f"question_{idx+1}_score"] = is_correct
-        correct_count += is_correct
+        is_correct = 1 if user_answer == correct_answer else 0  # Default to 0 if unanswered
+        question_scores[f'question_{idx+1}_score'] = is_correct
+
+        if is_correct:
+            correct_count += 1
 
     total_questions = len(selected_questions)
-    overall_score = correct_count  # Renamed from 'score' to 'overall_score'
+    score = correct_count
 
-    # ✅ Store results in Supabase with the correct column name
+    # Store in Supabase (Ensure all columns are filled)
     supabase.table("quiz_results").insert({
         "email": email,
         "site": site,
-        "overall_score": overall_score,  # Now using the correct column name
-        **question_scores
+        "overall_score": score,
+        **question_scores  # Ensure every question has a value (0 or 1)
     }).execute()
 
-    # ✅ Redirect to results page
-    session["overall_score"] = overall_score
-    session["total_questions"] = total_questions
-    return redirect(url_for("results"))
+    return redirect(url_for('results'))
+
 
 @app.route("/results")
 def results():
