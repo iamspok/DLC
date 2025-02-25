@@ -60,11 +60,13 @@ def display_questions():
 
 @app.route("/submit", methods=["POST"])
 def submit_quiz():
-    """Step 3: Process answers & show results"""
+    """Handles quiz submission."""
     email = session.get("email")
     site = session.get("site")
 
-    user_answers = {}
+    if not email or not site:
+        return "Error: Missing email or site. Please restart the quiz.", 400
+
     correct_count = 0
     question_scores = {}
 
@@ -77,18 +79,18 @@ def submit_quiz():
         correct_count += is_correct
 
     total_questions = len(selected_questions)
-    score = correct_count
+    overall_score = correct_count  # Renamed from 'score' to 'overall_score'
 
-    # ✅ Store in Supabase
+    # ✅ Store results in Supabase with the correct column name
     supabase.table("quiz_results").insert({
         "email": email,
         "site": site,
-        "score": score,
+        "overall_score": overall_score,  # Now using the correct column name
         **question_scores
     }).execute()
 
     # ✅ Redirect to results page
-    session["score"] = score
+    session["overall_score"] = overall_score
     session["total_questions"] = total_questions
     return redirect(url_for("results"))
 
