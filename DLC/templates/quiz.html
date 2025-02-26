@@ -7,20 +7,26 @@
     <title>Quiz</title>
 </head>
 <body>
-    <h1>Quiz Questions</h1>
-    <form method="POST" action="/submit">
+  <div class="quiz-container">
+   <h1>Quiz Questions</h1>
+
+    <form action="/submit" method="post">
         {% for question in questions %}
-        <p>{{ question.id }}. {{ question.question }}</p>
-        <ul>
-            {% for answer in question.answers %}
-            <li>
-                <input type="radio" name="question_{{ question.id }}" value="{{ answer }}" required>
-                {{ answer }}
-            </li>
-            {% endfor %}
-        </ul>
+            <div class="question">
+                <p>{{ question['question'] }}</p>
+                <ul class="options">
+                    {% for answer in question['answers'] %}
+                        <li>
+                            <input type="radio" id="{{ question['name'] }}_{{ loop.index }}" name="{{ question['name'] }}" value="{{ answer }}">
+                            <label for="{{ question['name'] }}_{{ loop.index }}">{{ answer }}</label>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
         {% endfor %}
+
         <button type="submit">Submit</button>
     </form>
+</div>
 </body>
 </html>
