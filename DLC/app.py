@@ -64,13 +64,13 @@ def submit_quiz():
     email = session.get('email')
     site = session.get('site')
 
-    # If session values are missing, try retrieving from the form
+    # If session values are missing, retrieve from the form
     if not email:
         email = request.form.get('email')
     if not site:
         site = request.form.get('site')
 
-    # Ensure email and site are never None (Prevents NOT NULL Constraint Violation)
+    # Ensure email and site are not None (Prevents NOT NULL Constraint Violation)
     if not email or not site:
         return "Error: Email and site are required!", 400
 
@@ -79,11 +79,11 @@ def submit_quiz():
     question_scores = {}
 
     for idx, question in enumerate(selected_questions):
-        user_answer = request.form.get(f'question_{idx+1}', '')  # Ensure an empty string instead of None
+        user_answer = request.form.get(f'question_{idx+1}', '')  # Default to empty string if unanswered
         correct_answer = question['correct_answer']
 
-        is_correct = 1 if user_answer == correct_answer else 0  # Default to 0 if unanswered
-        question_scores[f'question_{idx+1}_score'] = is_correct
+        is_correct = 1 if user_answer == correct_answer else 0
+        question_scores[f'question_{idx+1}_score'] = is_correct  # Always store 0 or 1
 
         if is_correct:
             correct_count += 1
@@ -91,7 +91,7 @@ def submit_quiz():
     total_questions = len(selected_questions)
     score = correct_count
 
-    # Store in Supabase (Ensure all columns are filled)
+    # Store in Supabase
     supabase.table("quiz_results").insert({
         "email": email,
         "site": site,
@@ -99,15 +99,16 @@ def submit_quiz():
         **question_scores  # Ensure every question has a value (0 or 1)
     }).execute()
 
+    # ✅ Store the score in session for the results page
+    session['score'] = score
+    session['total_questions'] = total_questions
+
     return redirect(url_for('results'))
 
-@app.route("/results")
+@app.route('/results')
 def results():
-    """Step 4: Show final score & feedback"""
-    score = session.get("score")
-    total_questions = session.get("total_questions")
+    """Displays the user's score after submitting the quiz."""
+    score = session.get('score', 0)  # Default to 0 if missing
+    total_questions = session.get('total_questions', 15)  # Default to 15
 
-    return render_template("results.html", score=score, total_questions=total_questions)
-
-if __name__ == "__main__":
-    app.run(debug=True)
+    return render_template('results.html', score=score, total_questions=total_questions)
