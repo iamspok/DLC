@@ -10,23 +10,24 @@
   <div class="quiz-container">
    <h1>Quiz Questions</h1>
 
-    <form action="/submit" method="post">
-        {% for question in questions %}
-            <div class="question">
-                <p>{{ question['question'] }}</p>
-                <ul class="options">
-                    {% for answer in question['answers'] %}
-                        <li>
-                            <input type="radio" id="{{ question['name'] }}_{{ loop.index }}" name="{{ question['name'] }}" value="{{ answer }}">
-                            <label for="{{ question['name'] }}_{{ loop.index }}">{{ answer }}</label>
-                        </li>
-                    {% endfor %}
-                </ul>
-            </div>
-        {% endfor %}
+   <form action="/submit" method="post">
+    {% for question in questions %}
+        <div class="question">
+            <p>{{ question['question'] }}</p>
+            <ul class="options">
+                {% for answer in question['answers'] %}
+                    <li>
+                        <input type="radio" id="{{ question['name'] }}_{{ loop.index }}" name="{{ question['name'] }}" value="{{ answer }}">
+                        <label for="{{ question['name'] }}_{{ loop.index }}">{{ answer }}</label>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% endfor %}
+    
+    <button type="submit">Submit</button>
+</form>
 
-        <button type="submit">Submit</button>
-    </form>
 </div>
 </body>
 </html>
