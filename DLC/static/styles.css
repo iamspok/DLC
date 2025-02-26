@@ -1,92 +1,74 @@
-/* General Page Styling */
+/* General Styling */
 body {
-    background: linear-gradient(135deg, #0f172a, #1e3a8a); /* Dark Blue Gradient */
-    font-family: 'Arial', sans-serif;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    margin: 0;
+    background: linear-gradient(135deg, #0b3d91, #0a2a6c);
+    font-family: Arial, sans-serif;
+    color: #333;
+    text-align: center;
+    padding: 20px;
 }
 
-/* Centered Quiz Box */
+/* Quiz Container */
 .quiz-container {
     background: white;
-    width: 35%; /* Adjusted to take up roughly one-third of the page */
-    max-width: 500px; /* Limit max size */
-    padding: 20px;
+    width: 35%;  /* Adjust width for better centering */
+    margin: auto;
+    padding: 30px;
     border-radius: 10px;
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
-    text-align: center;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
 }
 
-/* Title Styling */
-.quiz-title {
-    font-size: 24px;
+/* Headings */
+h1, h2 {
+    color: #0a2a6c;
     font-weight: bold;
-    margin-bottom: 10px;
-    color: #1e3a8a;
+    margin-bottom: 20px;
 }
 
-/* Question Styling */
+/* Questions */
 .question {
     font-size: 18px;
     font-weight: bold;
-    margin: 15px 0;
+    margin: 20px 0;
     text-align: left;
 }
 
-/* Answer Buttons */
-.answer-container {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
+/* Answer Options */
+.options {
+    list-style-type: none;
+    padding: 0;
 }
 
-.answer-button {
-    background: #f8f9fa;
-    border: 2px solid #ddd;
+.options li {
+    background: #f8f8f8;
+    margin: 10px 0;
     padding: 10px;
     border-radius: 5px;
     cursor: pointer;
-    font-size: 16px;
-    text-align: left;
-    transition: 0.3s ease-in-out;
+    transition: all 0.3s ease;
 }
 
-.answer-button:hover {
-    background: #e2e8f0;
+.options li:hover {
+    background: #d8e3ff;
 }
 
 /* Selected Answer */
-.answer-button.selected {
-    background: #2563eb;
+.options input[type="radio"]:checked + label {
+    background: #4CAF50;
     color: white;
-    border-color: #2563eb;
 }
 
-/* Next/Submit Button */
-.submit-button {
-    background: #1e3a8a;
+/* Buttons */
+button {
+    background: #0a2a6c;
     color: white;
     border: none;
-    padding: 12px;
-    width: 100%;
+    padding: 10px 20px;
+    margin-top: 20px;
     border-radius: 5px;
     cursor: pointer;
-    font-size: 18px;
-    margin-top: 20px;
-    transition: 0.3s;
+    font-size: 16px;
 }
 
-.submit-button:hover {
-    background: #172554;
-}
-
-/* Score Display */
-.score-container {
-    font-size: 20px;
-    font-weight: bold;
-    margin-top: 20px;
-    color: #2563eb;
+button:hover {
+    background: #06225a;
 }
