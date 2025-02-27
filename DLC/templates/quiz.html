@@ -16,10 +16,14 @@
         <h3>{{ question.question }}</h3>
         {% for answer in question.answers %}
             <label class="radio-container">
-                <input type="radio" name="{{ question.name }}" id="{{ question.name }}_{{ loop.index }}" value="{{ answer }}">
+                <!-- Ensure the "name" is unique for each question -->
+                <input type="radio" name="question_{{ loop.parent.index }}" id="question_{{ loop.parent.index }}_{{ loop.index }}" value="{{ answer }}">
                 {{ answer }}
             </label>
         {% endfor %}
+    </div>
+{% endfor %}
+
     </div>
    {% endfor %}
 
