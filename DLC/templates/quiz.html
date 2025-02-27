@@ -17,12 +17,11 @@
         {% for answer in question.answers %}
             <label class="radio-container">
                 <input type="radio" name="{{ question.name }}" id="{{ question.name }}_{{ loop.index }}" value="{{ answer }}">
-                <span class="custom-radio"></span> <!-- For styling -->
                 {{ answer }}
             </label>
         {% endfor %}
     </div>
-   {% endfor %}  <!-- Removed the extra endfor -->
+   {% endfor %}
 
     <button type="submit">Submit</button>
   </form>
