@@ -11,16 +11,19 @@
    <h1>Quiz Questions</h1>
 
   <form action="/submit" method="post">
-    {% for question in questions %}
-        <div class="question">
-            <p>{{ question['question'] }}</p>
-            <ul class="options">
-                {% for answer in question['answers'] %}
-                    <li>
-                        <input type="radio" id="{{ question['name'] }}_{{ loop.index }}" name="{{ question['name'] }}" value="{{ answer }}">
-                        <label for="{{ question['name'] }}_{{ loop.index }}">{{ answer }}</label>
-                    </li>
-                {% endfor %}
+   {% for question in questions %}
+    <div class="question-container">
+        <h3>{{ question.question }}</h3>
+        {% for answer in question.answers %}
+            <label class="radio-container">
+                <input type="radio" name="{{ question.name }}" id="{{ question.name }}_{{ loop.index }}" value="{{ answer }}">
+                <span class="custom-radio"></span> <!-- For styling -->
+                {{ answer }}
+            </label>
+        {% endfor %}
+    </div>
+{% endfor %}
+
             </ul>
         </div>
     {% endfor %}
