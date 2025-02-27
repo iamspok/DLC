@@ -10,7 +10,7 @@
   <div class="quiz-container">
    <h1>Quiz Questions</h1>
 
-   <form action="/submit" method="post">
+  <form action="/submit" method="post">
     {% for question in questions %}
         <div class="question">
             <p>{{ question['question'] }}</p>
@@ -27,6 +27,7 @@
     
     <button type="submit">Submit</button>
 </form>
+
 
 </div>
 </body>
