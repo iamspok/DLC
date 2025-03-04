@@ -29,13 +29,15 @@
             margin-bottom: 5px;
             font-weight: bold;
         }
+        /* Ensure input and select are exactly the same width */
         input, select {
-            width: 100%;
+            width: calc(100% - 20px); /* Adjusts for padding & borders */
             padding: 10px;
             border: 1px solid #ccc;
             border-radius: 5px;
             font-size: 16px;
             display: block;
+            box-sizing: border-box; /* Ensures width includes padding */
         }
         /* Extra spacing between email and site selection */
         #email {
