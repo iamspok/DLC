@@ -90,7 +90,9 @@ def submit_quiz():
     if not email or not site:
         return "Error: Email and site are required!", 400
 
-    # ✅ Ensure questions are loaded (fixes the empty `selected_questions` issue)
+    # ✅ Debug: Print all submitted form data
+    print(f"📩 DEBUG: Received form data: {dict(request.form)}")
+
     if not selected_questions:
         load_questions()
 
@@ -99,18 +101,15 @@ def submit_quiz():
 
     total_questions = len(selected_questions)
 
-    # ✅ First, initialize ALL questions with a default score of 0
     for i in range(1, total_questions + 1):
         question_scores[f'question_{i}_score'] = 0
 
-    # ✅ Now, process user answers
     for idx, question in enumerate(selected_questions):
         question_name = f'question_{idx+1}'
-        user_answer = request.form.get(question_name, "").strip().lower()  # Normalize user input
-        correct_answer = question.get('correct_answer', "").strip().lower()  # Normalize correct answer
+        user_answer = request.form.get(question_name, "").strip().lower()
+        correct_answer = question.get('correct_answer', "").strip().lower()
 
-        # Debugging output
-        print(f"🔍 Checking Q{idx+1}:")
+        print(f"🔍 Checking {question_name}:")
         print(f"User Answer: '{user_answer}' | Correct Answer: '{correct_answer}'")
 
         if user_answer and user_answer != "no_answer":
@@ -122,13 +121,11 @@ def submit_quiz():
 
     score = correct_count
 
-    # ✅ Store the score in the session before redirecting
     session['score'] = score
     session['total_questions'] = total_questions
 
     print(f"✅ DEBUG: Storing score {score}/{total_questions} in session")
 
-    # ✅ Store results in Supabase, ensuring NO NULL values
     supabase.table("quiz_results").insert({
         "email": email,
         "site": site,
