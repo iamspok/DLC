@@ -58,25 +58,45 @@
 <body>
     <div class="quiz-container">
         <h1>Quiz Questions</h1>
-        <form action="{{ url_for('submit_quiz') }}" method="post">
-            <div class="question-scroll">
-                {% for question in questions %}
-                    <div class="question-container">
-                        <h3>{{ loop.index }}. {{ question.question }}</h3>
-                        
-                        <!-- Hidden input to ensure all questions are submitted, even if unanswered -->
-                        <input type="hidden" name="{{ question.name }}" value="">
+       <form action="{{ url_for('submit_quiz') }}" method="post">
+    <div class="question-scroll">
+        {% for question in questions %}
+            <div class="question-container">
+                <h3>{{ loop.index }}. {{ question.question }}</h3>
+                
+                <!-- Hidden input to ensure unanswered questions are submitted -->
+                <input type="hidden" name="{{ question.name }}" value="NO_ANSWER">
 
-                        {% for answer in question.answers %}
-                            <label>
-                                <input type="radio" name="{{ question.name }}" value="{{ answer }}"> {{ answer }}
-                            </label>
-                        {% endfor %}
-                    </div>
+                {% for answer in question.answers %}
+                    <label>
+                        <input type="radio" name="{{ question.name }}" value="{{ answer }}"> {{ answer }}
+                    </label>
                 {% endfor %}
             </div>
-            <button type="submit">Submit</button>
-        </form>
+        {% endfor %}
     </div>
+    <button type="submit">Submit</button>
+</form>
+    </div>
+
+    <script>
+document.querySelector("form").addEventListener("submit", function(event) {
+    let unanswered = [];
+    let totalQuestions = {{ questions|length }};
+    
+    for (let i = 1; i <= totalQuestions; i++) {
+        let selected = document.querySelector(`input[name="question_${i}"]:checked`);
+        if (!selected) {
+            unanswered.push(i);
+        }
+    }
+
+    if (unanswered.length > 0) {
+        alert(`You must answer all questions before submitting. Missing: Question ${unanswered.join(", ")}`);
+        event.preventDefault();  // Stop form submission
+    }
+});
+</script>
+
 </body>
 </html>
