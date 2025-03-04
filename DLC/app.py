@@ -95,15 +95,20 @@ def submit_quiz():
 
     for idx, question in enumerate(selected_questions):
         question_name = f'question_{idx+1}'
-        user_answer = request.form.get(question_name, "").strip()  # Remove extra spaces
+        user_answer = request.form.get(question_name, "").strip()
         correct_answer = question.get('correct_answer', "").strip()
 
-        # Debugging output to check values
-        print(f"🔍 Checking Question {idx+1}:")
-        print(f"User Answer: '{user_answer}'")
-        print(f"Correct Answer: '{correct_answer}'")
-        
-        is_correct = 1 if user_answer.lower() == correct_answer.lower() else 0  # Case-insensitive check
+        # Handle "NO_ANSWER" responses
+        if user_answer == "NO_ANSWER":
+            print(f"⚠️ Question {idx+1} was left unanswered")
+            question_scores[f'{question_name}_score'] = 0
+            continue  # Skip checking this question
+
+        # Debugging output
+        print(f"🔍 Checking Q{idx+1}:")
+        print(f"User Answer: '{user_answer}' | Correct Answer: '{correct_answer}'")
+
+        is_correct = 1 if user_answer.lower() == correct_answer.lower() else 0
         question_scores[f'{question_name}_score'] = is_correct
 
         if is_correct:
@@ -112,9 +117,11 @@ def submit_quiz():
     total_questions = len(selected_questions)
     score = correct_count
 
-    # Ensure ALL questions have a value (default to 0)
-    for i in range(1, total_questions + 1):
-        question_scores.setdefault(f'question_{i}_score', 0)
+    # ✅ Store the score in the session before redirecting
+    session['score'] = score
+    session['total_questions'] = total_questions
+
+    print(f"✅ DEBUG: Storing score {score}/{total_questions} in session")
 
     # Store results in Supabase
     supabase.table("quiz_results").insert({
@@ -124,10 +131,8 @@ def submit_quiz():
         **question_scores
     }).execute()
 
-    session['score'] = score
-    session['total_questions'] = total_questions
-
     return redirect(url_for('results'))
+
 
 @app.route('/results')
 def results():
