@@ -24,15 +24,27 @@ def load_questions():
     response = supabase.table("quiz_questions").select("*").gte("timestamp", one_month_ago).execute()
     
     if response.data:
-        selected_questions = [
-            {
+        selected_questions = []
+        
+        for idx, q in enumerate(response.data):
+            correct_answer = q["correct_answer"].strip()  # Make sure it's clean
+            all_answers = eval(q["answers"])  # Convert string to list
+            
+            # Ensure the correct answer is included in the answer choices
+            if correct_answer not in all_answers:
+                all_answers.append(correct_answer)
+
+            # Shuffle the answers so it's not always in the same spot
+            random.shuffle(all_answers)
+
+            selected_questions.append({
                 "id": idx + 1,
                 "question": q["question"],
-                "correct_answer": q.get("correct_answer", "").strip(),  # Ensure it's stored properly
-                "answers": eval(q["answers"])  # Convert string back to list
-            }
-            for idx, q in enumerate(response.data)
-        ]
+                "correct_answer": correct_answer,
+                "answers": all_answers,
+                "name": f"question_{idx+1}"
+            })
+        
         return
 
     print("🔄 Loading new questions from Excel...")
