@@ -6,64 +6,69 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quiz</title>
     <link href="https://fonts.googleapis.com/css2?family=Tenorite:wght@400;700&display=swap" rel="stylesheet">
-    <style>
-        body {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background-color: #b5c8a6;
-            font-family: 'Tenorite', sans-serif;
-            font-weight: bold;
-        }
-        .quiz-container {
-            background: white;
-            padding: 30px;
-            border-radius: 20px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            text-align: center;
-            width: 500px;
-            height: 600px;
-            overflow-y: auto;
-        }
-        .question-container {
-            margin: 15px 0;
-            text-align: left;
-        }
-        /* Ensures radio buttons and answers are aligned */
-        .radio-container {
-            display: flex;
-            align-items: flex-start;
-            gap: 10px;
-            margin-bottom: 10px;
-        }
-        /* Aligns radio buttons properly */
-        .radio-container input[type="radio"] {
-            margin-top: 5px;
-            flex-shrink: 0;
-        }
-        /* Ensures answer text wraps properly */
-        .radio-container label {
-            display: flex;
-            flex-direction: column;
-            width: 100%;
-        }
-        button {
-            margin-top: 20px;
-            padding: 10px 20px;
-            border: none;
-            background-color: #007bff;
-            color: white;
-            font-size: 18px;
-            border-radius: 10px;
-            cursor: pointer;
-            width: 100%;
-            font-weight: bold;
-        }
-        button:hover {
-            background-color: #0056b3;
-        }
-    </style>
+   <style>
+    body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        background-color: #b5c8a6;
+        font-family: 'Tenorite', sans-serif;
+        font-weight: bold;
+    }
+    .quiz-container {
+        background: white;
+        padding: 30px;
+        border-radius: 20px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        text-align: center;
+        width: 500px;
+        height: 600px;
+        overflow-y: auto;
+    }
+    .question-container {
+        margin: 15px 0;
+        text-align: left;
+    }
+    /* Make questions bold */
+    .question-container h3 {
+        font-weight: bold;
+    }
+    /* Align radio buttons properly */
+    .radio-container {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        margin-bottom: 10px;
+    }
+    .radio-container input[type="radio"] {
+        margin-top: 5px;
+        flex-shrink: 0;
+    }
+    /* Make answer text NOT bold */
+    .radio-container label {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        font-weight: normal;  /* ✅ This makes answers NOT bold */
+    }
+    button {
+        margin-top: 20px;
+        padding: 10px 20px;
+        border: none;
+        background-color: #007bff;
+        color: white;
+        font-size: 18px;
+        border-radius: 10px;
+        cursor: pointer;
+        width: 100%;
+        font-weight: bold;
+    }
+    button:hover {
+        background-color: #0056b3;
+    }
+</style>
+
 </head>
 <body>
     <div class="quiz-container">
