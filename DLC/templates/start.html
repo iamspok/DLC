@@ -31,10 +31,15 @@
         }
         input, select {
             width: 100%;
-            padding: 8px;
+            padding: 10px;
             border: 1px solid #ccc;
             border-radius: 5px;
             font-size: 16px;
+            display: block;
+        }
+        /* Extra spacing between email and site selection */
+        #email {
+            margin-bottom: 15px;
         }
         button {
             margin-top: 20px;
@@ -60,16 +65,18 @@
             <label for="email">Email:</label>
             <input type="email" id="email" name="email" required>
 
+            <br> <!-- Extra line break for clarity -->
+
             <label for="site">Select Your Site:</label>
-            <select name="site" required>
-            <option value="" disabled selected>Select your site</option>
-            <option value="Cary CRC">Cary CRC</option>
-            <option value="Newcastle CRC">Newcastle CRC</option>
-            <option value="Pune CRC">Pune CRC</option>
-            <option value="5CA">5CA</option>
-            <option value="Concentrix">Concentrix</option>
-            <option value="PTW">PTW</option>
-        </select>
+            <select id="site" name="site" required>
+                <option value="" disabled selected>Select your site</option>
+                <option value="Cary CRC">Cary CRC</option>
+                <option value="Newcastle CRC">Newcastle CRC</option>
+                <option value="Pune CRC">Pune CRC</option>
+                <option value="5CA">5CA</option>
+                <option value="Concentrix">Concentrix</option>
+                <option value="PTW">PTW</option>
+            </select>
 
             <button type="submit">Start Quiz</button>
         </form>
