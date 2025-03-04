@@ -90,23 +90,24 @@ def submit_quiz():
     if not email or not site:
         return "Error: Email and site are required!", 400
 
+    # ✅ Ensure questions are loaded (fixes the empty `selected_questions` issue)
+    if not selected_questions:
+        load_questions()
+
     correct_count = 0
     question_scores = {}
 
-    # ✅ First, initialize ALL questions with a default score of 0
     total_questions = len(selected_questions)
+
+    # ✅ First, initialize ALL questions with a default score of 0
     for i in range(1, total_questions + 1):
-        question_scores[f'question_{i}_score'] = 0  # Default to 0
+        question_scores[f'question_{i}_score'] = 0
 
     # ✅ Now, process user answers
     for idx, question in enumerate(selected_questions):
         question_name = f'question_{idx+1}'
         user_answer = request.form.get(question_name, "").strip()
         correct_answer = question.get('correct_answer', "").strip()
-
-        # Debugging output
-        print(f"🔍 Checking Q{idx+1}:")
-        print(f"User Answer: '{user_answer}' | Correct Answer: '{correct_answer}'")
 
         if user_answer and user_answer != "NO_ANSWER":
             is_correct = 1 if user_answer.lower() == correct_answer.lower() else 0
@@ -128,7 +129,7 @@ def submit_quiz():
         "email": email,
         "site": site,
         "overall_score": score,
-        **question_scores  # All questions now have a default score
+        **question_scores
     }).execute()
 
     return redirect(url_for('results'))
