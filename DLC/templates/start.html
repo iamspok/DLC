@@ -4,26 +4,72 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Start Quiz</title>
+    <title>Quiz Start</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tenorite:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #b5c8a6;
+            font-family: 'Tenorite', sans-serif;
+            font-weight: bold;
+        }
+        .quiz-container {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            width: 400px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            border: none;
+            background-color: #007bff;
+            color: white;
+            font-size: 18px;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
 </head>
 <body>
-    <h1>Welcome to the Quiz</h1>
-    <form method="POST">
-        <label for="email">Email Address:</label>
-        <input type="email" name="email" required>
+    <div class="quiz-container">
+        <h1>Enter Your Details to Start the Quiz</h1>
 
-        <label for="site">Select your site:</label>
-        <select name="site" required>
-            <option value="" disabled selected>Select your site</option>
-            <option value="Cary CRC">Cary CRC</option>
-            <option value="Newcastle CRC">Newcastle CRC</option>
-            <option value="Pune CRC">Pune CRC</option>
-            <option value="5CA">5CA</option>
-            <option value="Concentrix">Concentrix</option>
-            <option value="PTW">PTW</option>
-        </select>
+        <form action="{{ url_for('index') }}" method="post">
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" required>
 
-        <button type="submit">Start Quiz</button>
-    </form>
+            <label for="site">Select Your Site:</label>
+            <select id="site" name="site" required>
+                <option value="">-- Select --</option>
+                <option value="Site A">Site A</option>
+                <option value="Site B">Site B</option>
+                <option value="Site C">Site C</option>
+            </select>
+
+            <button type="submit">Start Quiz</button>
+        </form>
+    </div>
 </body>
 </html>
