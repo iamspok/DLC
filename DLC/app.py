@@ -64,11 +64,14 @@ def index():
 
 @app.route('/quiz', methods=['POST', 'GET'])
 def display_questions():
-    """Display the quiz questions with unique names."""
+    """Display the quiz questions in a random order."""
     load_questions()
 
     if not selected_questions:
         return jsonify({'error': 'No questions loaded. Check server logs or Excel file.'})
+
+    # 🔀 Shuffle the question order
+    random.shuffle(selected_questions)
 
     # Assign unique names to each question (question_1, question_2, ..., question_15)
     for idx, question in enumerate(selected_questions):
