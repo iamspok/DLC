@@ -5,26 +5,72 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quiz</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tenorite:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #b5c8a6;
+            font-family: 'Tenorite', sans-serif;
+            font-weight: bold;
+        }
+        .quiz-container {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            width: 500px;
+            height: 600px;
+            overflow-y: auto;
+        }
+        .question-container {
+            margin: 15px 0;
+            text-align: left;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: normal;
+        }
+        input[type="radio"] {
+            margin-right: 10px;
+        }
+        button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            border: none;
+            background-color: #007bff;
+            color: white;
+            font-size: 18px;
+            border-radius: 10px;
+            cursor: pointer;
+            width: 100%;
+            font-weight: bold;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
 </head>
 <body>
     <div class="quiz-container">
         <h1>Quiz Questions</h1>
-
-        <form action="/submit" method="post">
-            {% for question in questions %}
-                <div class="question-container">
-                    <h3>{{ question.question }}</h3>
-                    {% for answer in question.answers %}
-                        <label class="radio-container">
-                            <!-- Ensuring unique name for each question -->
-                            <input type="radio" name="{{ question.name }}" id="{{ question.name }}_{{ loop.index }}" value="{{ answer }}">
-                            <span class="custom-radio"></span> <!-- For styling -->
-                            {{ answer }}
-                        </label>
-                    {% endfor %}
-                </div>
-            {% endfor %} <!-- 🚀 This is correctly closing the outer loop -->
-
+        <form action="{{ url_for('submit_quiz') }}" method="post">
+            <div class="question-scroll">
+                {% for question in questions %}
+                    <div class="question-container">
+                        <h3>{{ loop.index }}. {{ question.question }}</h3>
+                        {% for answer in question.answers %}
+                            <label>
+                                <input type="radio" name="{{ question.name }}" value="{{ answer }}"> {{ answer }}
+                            </label>
+                        {% endfor %}
+                    </div>
+                {% endfor %}
+            </div>
             <button type="submit">Submit</button>
         </form>
     </div>
