@@ -58,18 +58,18 @@
 <body>
     <div class="quiz-container">
         <h1>Quiz Questions</h1>
-     <form action="{{ url_for('submit_quiz') }}" method="post">
+    <form action="{{ url_for('submit_quiz') }}" method="post">
     <div class="question-scroll">
         {% for question in questions %}
             <div class="question-container">
                 <h3>{{ loop.index }}. {{ question.question }}</h3>
-                
+
                 <!-- Hidden input to ensure unanswered questions are submitted -->
                 <input type="hidden" name="{{ question.name }}" value="no_answer">
 
                 {% for answer in question.answers %}
                     <label>
-                        <input type="radio" name="{{ question.name }}" value="{{ answer }}" required> {{ answer }}
+                        <input type="radio" name="{{ question.name }}" value="{{ answer }}" class="answer-option"> {{ answer }}
                     </label>
                 {% endfor %}
             </div>
@@ -77,6 +77,20 @@
     </div>
     <button type="submit">Submit</button>
 </form>
+
+<!-- JS to Ensure User Selections Override 'no_answer' -->
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    document.querySelectorAll("input[type='radio']").forEach(radio => {
+        radio.addEventListener("change", function() {
+            let hiddenInput = this.closest(".question-container").querySelector("input[type='hidden']");
+            if (hiddenInput) {
+                hiddenInput.value = this.value;
+            }
+        });
+    });
+});
+</script>
 
     </div>
 
