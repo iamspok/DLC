@@ -26,32 +26,33 @@
             width: 400px;
             display: flex;
             flex-direction: column;
-            align-items: center; /* Center everything inside */
+            align-items: center;
         }
         form {
             width: 100%;
             display: flex;
             flex-direction: column;
-            align-items: center; /* Center inputs */
+            align-items: center;
         }
+        /* Centering labels */
         label {
             display: block;
             font-weight: bold;
-            text-align: left;
+            text-align: center; /* Center the text */
             width: 100%;
             margin-bottom: 5px;
         }
         /* Ensure input and select are exactly the same width and centered */
         input, select {
             width: 100%;
-            max-width: 300px; /* Restrict width for better alignment */
+            max-width: 300px;
             padding: 10px;
             border: 1px solid #ccc;
             border-radius: 5px;
             font-size: 16px;
             display: block;
             box-sizing: border-box;
-            margin: 5px auto; /* Center horizontally */
+            margin: 5px auto;
         }
         /* Extra spacing between email and site selection */
         #email {
@@ -67,7 +68,7 @@
             border-radius: 5px;
             cursor: pointer;
             width: 100%;
-            max-width: 300px; /* Keep button width matching input fields */
+            max-width: 300px;
         }
         button:hover {
             background-color: #0056b3;
