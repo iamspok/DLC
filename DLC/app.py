@@ -93,28 +93,28 @@ def submit_quiz():
     correct_count = 0
     question_scores = {}
 
+    # ✅ First, initialize ALL questions with a default score of 0
+    total_questions = len(selected_questions)
+    for i in range(1, total_questions + 1):
+        question_scores[f'question_{i}_score'] = 0  # Default to 0
+
+    # ✅ Now, process user answers
     for idx, question in enumerate(selected_questions):
         question_name = f'question_{idx+1}'
         user_answer = request.form.get(question_name, "").strip()
         correct_answer = question.get('correct_answer', "").strip()
 
-        # Handle "NO_ANSWER" responses
-        if user_answer == "NO_ANSWER":
-            print(f"⚠️ Question {idx+1} was left unanswered")
-            question_scores[f'{question_name}_score'] = 0
-            continue  # Skip checking this question
-
         # Debugging output
         print(f"🔍 Checking Q{idx+1}:")
         print(f"User Answer: '{user_answer}' | Correct Answer: '{correct_answer}'")
 
-        is_correct = 1 if user_answer.lower() == correct_answer.lower() else 0
-        question_scores[f'{question_name}_score'] = is_correct
+        if user_answer and user_answer != "NO_ANSWER":
+            is_correct = 1 if user_answer.lower() == correct_answer.lower() else 0
+            question_scores[f'{question_name}_score'] = is_correct
 
-        if is_correct:
-            correct_count += 1
+            if is_correct:
+                correct_count += 1
 
-    total_questions = len(selected_questions)
     score = correct_count
 
     # ✅ Store the score in the session before redirecting
@@ -123,16 +123,15 @@ def submit_quiz():
 
     print(f"✅ DEBUG: Storing score {score}/{total_questions} in session")
 
-    # Store results in Supabase
+    # ✅ Store results in Supabase, ensuring NO NULL values
     supabase.table("quiz_results").insert({
         "email": email,
         "site": site,
         "overall_score": score,
-        **question_scores
+        **question_scores  # All questions now have a default score
     }).execute()
 
     return redirect(url_for('results'))
-
 
 @app.route('/results')
 def results():
