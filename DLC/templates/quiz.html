@@ -58,7 +58,7 @@
 <body>
     <div class="quiz-container">
         <h1>Quiz Questions</h1>
-      <form action="{{ url_for('submit_quiz') }}" method="post">
+     <form action="{{ url_for('submit_quiz') }}" method="post">
     <div class="question-scroll">
         {% for question in questions %}
             <div class="question-container">
@@ -69,7 +69,7 @@
 
                 {% for answer in question.answers %}
                     <label>
-                        <input type="radio" name="{{ question.name }}" value="{{ answer }}"> {{ answer }}
+                        <input type="radio" name="{{ question.name }}" value="{{ answer }}" required> {{ answer }}
                     </label>
                 {% endfor %}
             </div>
@@ -77,7 +77,6 @@
     </div>
     <button type="submit">Submit</button>
 </form>
-
 
     </div>
 
