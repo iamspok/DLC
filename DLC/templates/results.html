@@ -31,7 +31,7 @@
             font-size: 18px;
             margin: 15px 0;
         }
-        .retry-button {
+        .close-button {
             display: inline-block;
             padding: 10px 20px;
             border: none;
@@ -40,10 +40,10 @@
             font-size: 18px;
             border-radius: 10px;
             cursor: pointer;
-            text-decoration: none;
             font-weight: bold;
+            text-decoration: none;
         }
-        .retry-button:hover {
+        .close-button:hover {
             background-color: #0056b3;
         }
     </style>
@@ -52,7 +52,7 @@
     <div class="results-container">
         <h1>Quiz Completed!</h1>
         <p>Your Score: {{ score }}/{{ total_questions }}</p>
-        <a href="{{ url_for('index') }}" class="retry-button">Take the Quiz Again</a>
+        <button class="close-button" onclick="window.close();">Close the DLC</button>
     </div>
 </body>
 </html>
