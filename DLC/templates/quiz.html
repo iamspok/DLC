@@ -7,29 +7,26 @@
     <title>Quiz</title>
 </head>
 <body>
-  <div class="quiz-container">
-   <h1>Quiz Questions</h1>
+    <div class="quiz-container">
+        <h1>Quiz Questions</h1>
 
-  <form action="/submit" method="post">
-   {% for question in questions %}
-    <div class="question-container">
-        <h3>{{ question.question }}</h3>
-        {% for answer in question.answers %}
-            <label class="radio-container">
-                <!-- Ensure the "name" is unique for each question -->
-                <input type="radio" name="question_{{ loop.parent.index }}" id="question_{{ loop.parent.index }}_{{ loop.index }}" value="{{ answer }}">
-                {{ answer }}
-            </label>
-        {% endfor %}
+        <form action="/submit" method="post">
+            {% for question in questions %}
+                <div class="question-container">
+                    <h3>{{ question.question }}</h3>
+                    {% for answer in question.answers %}
+                        <label class="radio-container">
+                            <!-- Ensuring unique name for each question -->
+                            <input type="radio" name="question_{{ loop.parent.index }}" id="question_{{ loop.parent.index }}_{{ loop.index }}" value="{{ answer }}">
+                            <span class="custom-radio"></span> <!-- For styling -->
+                            {{ answer }}
+                        </label>
+                    {% endfor %}
+                </div>
+            {% endfor %} <!-- 🚀 This is correctly closing the outer loop -->
+
+            <button type="submit">Submit</button>
+        </form>
     </div>
-{% endfor %}
-
-    </div>
-   {% endfor %}
-
-    <button type="submit">Submit</button>
-  </form>
-
-</div>
 </body>
 </html>
