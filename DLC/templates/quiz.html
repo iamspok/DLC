@@ -17,7 +17,7 @@
                     {% for answer in question.answers %}
                         <label class="radio-container">
                             <!-- Ensuring unique name for each question -->
-                            <input type="radio" name="question_{{ loop.parent.index }}" id="question_{{ loop.parent.index }}_{{ loop.index }}" value="{{ answer }}">
+                            <input type="radio" name="question_{{ loop.index0 }}" id="question_{{ loop.index0 }}_{{ loop.index }}" value="{{ answer }}">
                             <span class="custom-radio"></span> <!-- For styling -->
                             {{ answer }}
                         </label>
