@@ -106,11 +106,15 @@ def submit_quiz():
     # ✅ Now, process user answers
     for idx, question in enumerate(selected_questions):
         question_name = f'question_{idx+1}'
-        user_answer = request.form.get(question_name, "").strip()
-        correct_answer = question.get('correct_answer', "").strip()
+        user_answer = request.form.get(question_name, "").strip().lower()  # Normalize user input
+        correct_answer = question.get('correct_answer', "").strip().lower()  # Normalize correct answer
 
-        if user_answer and user_answer != "NO_ANSWER":
-            is_correct = 1 if user_answer.lower() == correct_answer.lower() else 0
+        # Debugging output
+        print(f"🔍 Checking Q{idx+1}:")
+        print(f"User Answer: '{user_answer}' | Correct Answer: '{correct_answer}'")
+
+        if user_answer and user_answer != "no_answer":
+            is_correct = 1 if user_answer == correct_answer else 0
             question_scores[f'{question_name}_score'] = is_correct
 
             if is_correct:
