@@ -30,13 +30,23 @@
             margin: 15px 0;
             text-align: left;
         }
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: normal;
+        /* Ensures radio buttons and answers are aligned */
+        .radio-container {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            margin-bottom: 10px;
         }
-        input[type="radio"] {
-            margin-right: 10px;
+        /* Aligns radio buttons properly */
+        .radio-container input[type="radio"] {
+            margin-top: 5px;
+            flex-shrink: 0;
+        }
+        /* Ensures answer text wraps properly */
+        .radio-container label {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
         }
         button {
             margin-top: 20px;
@@ -58,60 +68,60 @@
 <body>
     <div class="quiz-container">
         <h1>Quiz Questions</h1>
-    <form action="{{ url_for('submit_quiz') }}" method="post">
-    <div class="question-scroll">
-        {% for question in questions %}
-            <div class="question-container">
-                <h3>{{ loop.index }}. {{ question.question }}</h3>
+        <form action="{{ url_for('submit_quiz') }}" method="post">
+            <div class="question-scroll">
+                {% for question in questions %}
+                    <div class="question-container">
+                        <h3>{{ loop.index }}. {{ question.question }}</h3>
 
-                <!-- Hidden input to ensure unanswered questions are submitted -->
-                <input type="hidden" name="{{ question.name }}" value="no_answer">
+                        <!-- Hidden input to ensure unanswered questions are submitted -->
+                        <input type="hidden" name="{{ question.name }}" value="no_answer">
 
-                {% for answer in question.answers %}
-                    <label>
-                        <input type="radio" name="{{ question.name }}" value="{{ answer }}" class="answer-option"> {{ answer }}
-                    </label>
+                        {% for answer in question.answers %}
+                            <div class="radio-container">
+                                <input type="radio" name="{{ question.name }}" value="{{ answer }}" class="answer-option">
+                                <label>{{ answer }}</label>
+                            </div>
+                        {% endfor %}
+                    </div>
                 {% endfor %}
             </div>
-        {% endfor %}
+            <button type="submit">Submit</button>
+        </form>
+
+        <!-- JS to Ensure User Selections Override 'no_answer' -->
+        <script>
+            document.addEventListener("DOMContentLoaded", function() {
+                document.querySelectorAll("input[type='radio']").forEach(radio => {
+                    radio.addEventListener("change", function() {
+                        let hiddenInput = this.closest(".question-container").querySelector("input[type='hidden']");
+                        if (hiddenInput) {
+                            hiddenInput.value = this.value;
+                        }
+                    });
+                });
+            });
+        </script>
+
+        <!-- JS to Prevent Submission Without Answering All Questions -->
+        <script>
+            document.querySelector("form").addEventListener("submit", function(event) {
+                let unanswered = [];
+                let totalQuestions = {{ questions|length }};
+
+                for (let i = 1; i <= totalQuestions; i++) {
+                    let selected = document.querySelector(`input[name="question_${i}"]:checked`);
+                    if (!selected) {
+                        unanswered.push(i);
+                    }
+                }
+
+                if (unanswered.length > 0) {
+                    alert(`You must answer all questions before submitting. Missing: Question ${unanswered.join(", ")}`);
+                    event.preventDefault();  // Stop form submission
+                }
+            });
+        </script>
     </div>
-    <button type="submit">Submit</button>
-</form>
-
-<!-- JS to Ensure User Selections Override 'no_answer' -->
-<script>
-document.addEventListener("DOMContentLoaded", function() {
-    document.querySelectorAll("input[type='radio']").forEach(radio => {
-        radio.addEventListener("change", function() {
-            let hiddenInput = this.closest(".question-container").querySelector("input[type='hidden']");
-            if (hiddenInput) {
-                hiddenInput.value = this.value;
-            }
-        });
-    });
-});
-</script>
-
-    </div>
-
-    <script>
-document.querySelector("form").addEventListener("submit", function(event) {
-    let unanswered = [];
-    let totalQuestions = {{ questions|length }};
-    
-    for (let i = 1; i <= totalQuestions; i++) {
-        let selected = document.querySelector(`input[name="question_${i}"]:checked`);
-        if (!selected) {
-            unanswered.push(i);
-        }
-    }
-
-    if (unanswered.length > 0) {
-        alert(`You must answer all questions before submitting. Missing: Question ${unanswered.join(", ")}`);
-        event.preventDefault();  // Stop form submission
-    }
-});
-</script>
-
 </body>
 </html>
