@@ -49,12 +49,17 @@ def index():
 
     return render_template("start.html")  # Only email & site fields
 
-@app.route("/quiz", methods=["GET"])
+@app.route('/quiz', methods=['POST', 'GET'])
 def display_questions():
-    """Step 2: Show quiz questions (without credentials or results)"""
+    """Display the quiz questions with unique names."""
     load_questions()
+
     if not selected_questions:
-        return "No questions loaded, please try again later."
+        return jsonify({'error': 'No questions loaded. Check server logs or Excel file.'})
+
+    # Assign unique names to each question (question_1, question_2, ..., question_15)
+    for idx, question in enumerate(selected_questions):
+        question['name'] = f"question_{idx+1}"
 
     return render_template("quiz.html", questions=selected_questions)
 
