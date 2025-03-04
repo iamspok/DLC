@@ -5,10 +5,54 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quiz Results</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tenorite:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #b5c8a6;
+            font-family: 'Tenorite', sans-serif;
+            font-weight: bold;
+        }
+        .results-container {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            width: 400px;
+        }
+        h1 {
+            font-size: 24px;
+        }
+        p {
+            font-size: 18px;
+            margin: 15px 0;
+        }
+        .retry-button {
+            display: inline-block;
+            padding: 10px 20px;
+            border: none;
+            background-color: #007bff;
+            color: white;
+            font-size: 18px;
+            border-radius: 10px;
+            cursor: pointer;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .retry-button:hover {
+            background-color: #0056b3;
+        }
+    </style>
 </head>
 <body>
-    <h1>Quiz Completed!</h1>
-    <p>Your Score: {{ score }}/{{ total_questions }}</p>
-    <a href="/">Take the Quiz Again</a>
+    <div class="results-container">
+        <h1>Quiz Completed!</h1>
+        <p>Your Score: {{ score }}/{{ total_questions }}</p>
+        <a href="{{ url_for('index') }}" class="retry-button">Take the Quiz Again</a>
+    </div>
 </body>
 </html>
