@@ -22,12 +22,13 @@ def load_questions():
     one_month_ago = int(time.time()) - CACHE_DURATION
 
     response = supabase.table("quiz_questions").select("*").gte("timestamp", one_month_ago).execute()
+    
     if response.data:
         selected_questions = [
             {
                 "id": idx + 1,
                 "question": q["question"],
-                "correct_answer": q["correct_answer"],
+                "correct_answer": q.get("correct_answer", "").strip(),  # Ensure it's stored properly
                 "answers": eval(q["answers"])  # Convert string back to list
             }
             for idx, q in enumerate(response.data)
@@ -69,26 +70,29 @@ def submit_quiz():
     email = session.get('email')
     site = session.get('site')
 
-    # If session values are missing, retrieve from the form
     if not email:
         email = request.form.get('email')
     if not site:
         site = request.form.get('site')
 
-    # Ensure email and site are not None (Prevents NOT NULL Constraint Violation)
     if not email or not site:
         return "Error: Email and site are required!", 400
 
-    user_answers = {}
     correct_count = 0
     question_scores = {}
 
     for idx, question in enumerate(selected_questions):
-        user_answer = request.form.get(f'question_{idx+1}', '')  # Default to empty string if unanswered
-        correct_answer = question['correct_answer']
+        question_name = f'question_{idx+1}'
+        user_answer = request.form.get(question_name, "").strip()  # Remove extra spaces
+        correct_answer = question.get('correct_answer', "").strip()
 
-        is_correct = 1 if user_answer == correct_answer else 0
-        question_scores[f'question_{idx+1}_score'] = is_correct  # Always store 0 or 1
+        # Debugging output to check values
+        print(f"🔍 Checking Question {idx+1}:")
+        print(f"User Answer: '{user_answer}'")
+        print(f"Correct Answer: '{correct_answer}'")
+        
+        is_correct = 1 if user_answer.lower() == correct_answer.lower() else 0  # Case-insensitive check
+        question_scores[f'{question_name}_score'] = is_correct
 
         if is_correct:
             correct_count += 1
@@ -96,15 +100,18 @@ def submit_quiz():
     total_questions = len(selected_questions)
     score = correct_count
 
-    # Store in Supabase
+    # Ensure ALL questions have a value (default to 0)
+    for i in range(1, total_questions + 1):
+        question_scores.setdefault(f'question_{i}_score', 0)
+
+    # Store results in Supabase
     supabase.table("quiz_results").insert({
         "email": email,
         "site": site,
         "overall_score": score,
-        **question_scores  # Ensure every question has a value (0 or 1)
+        **question_scores
     }).execute()
 
-    # ✅ Store the score in session for the results page
     session['score'] = score
     session['total_questions'] = total_questions
 
