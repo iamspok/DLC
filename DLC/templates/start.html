@@ -54,19 +54,22 @@
 </head>
 <body>
     <div class="quiz-container">
-        <h1>Enter Your Details to Start the Quiz</h1>
+        <h1>Enter Your Details!</h1>
 
         <form action="{{ url_for('index') }}" method="post">
             <label for="email">Email:</label>
             <input type="email" id="email" name="email" required>
 
             <label for="site">Select Your Site:</label>
-            <select id="site" name="site" required>
-                <option value="">-- Select --</option>
-                <option value="Site A">Site A</option>
-                <option value="Site B">Site B</option>
-                <option value="Site C">Site C</option>
-            </select>
+            <select name="site" required>
+            <option value="" disabled selected>Select your site</option>
+            <option value="Cary CRC">Cary CRC</option>
+            <option value="Newcastle CRC">Newcastle CRC</option>
+            <option value="Pune CRC">Pune CRC</option>
+            <option value="5CA">5CA</option>
+            <option value="Concentrix">Concentrix</option>
+            <option value="PTW">PTW</option>
+        </select>
 
             <button type="submit">Start Quiz</button>
         </form>
