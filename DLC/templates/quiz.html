@@ -63,6 +63,10 @@
                 {% for question in questions %}
                     <div class="question-container">
                         <h3>{{ loop.index }}. {{ question.question }}</h3>
+                        
+                        <!-- Hidden input to ensure all questions are submitted, even if unanswered -->
+                        <input type="hidden" name="{{ question.name }}" value="">
+
                         {% for answer in question.answers %}
                             <label>
                                 <input type="radio" name="{{ question.name }}" value="{{ answer }}"> {{ answer }}
