@@ -7,15 +7,6 @@
     <title>Quiz</title>
     <link href="https://fonts.googleapis.com/css2?family=Tenorite:wght@400;700&display=swap" rel="stylesheet">
    <style>
-    body {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
-        background-color: #a3b18a;
-        font-family: 'Tenorite', sans-serif;
-        font-weight: bold;
-    }
     .quiz-container {
         background: white;
         padding: 30px;
@@ -70,7 +61,7 @@
 </style>
 
 </head>
-<body>
+<body class="quiz-page">  <!-- ✅ ADDED CLASS HERE -->
     <div class="quiz-container">
         <h1>Quiz Questions</h1>
         <form action="{{ url_for('submit_quiz') }}" method="post">
