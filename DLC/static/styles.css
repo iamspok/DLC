@@ -1,12 +1,28 @@
 /* General Styling */
 body {
-    background: linear-gradient(135deg, #0b3d91, #0a2a6c);
     font-family: Arial, sans-serif;
     color: #333;
     text-align: center;
     padding: 20px;
+    margin: 0;
 }
 
+/* Background for Start Page */
+.start-page {
+    background-color: #dda15e; /* Warm Orange */
+}
+
+/* Background for Quiz Page */
+.quiz-page {
+    background-color: #a3b18a; /* Muted Green */
+}
+
+/* Background for Results Page */
+.results-page {
+    background-color: #90e0ef; /* Soft Blue */
+}
+
+/* Quiz Container */
 .quiz-container {
     max-width: 600px;
     margin: 50px auto;
@@ -16,11 +32,13 @@ body {
     box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
 }
 
+/* Titles */
 h1 {
     text-align: center;
     font-size: 26px;
 }
 
+/* Question Styling */
 .question-container {
     margin-bottom: 20px;
     padding: 10px;
@@ -33,7 +51,7 @@ h1 {
     margin-bottom: 10px;
 }
 
-/* Ensure radio buttons appear in a vertical list */
+/* Answer Options */
 .radio-container {
     display: block;
     background: #f8f8f8;
@@ -45,17 +63,17 @@ h1 {
     transition: background 0.3s ease;
 }
 
-/* Ensure radio button is properly spaced */
+/* Ensure radio button spacing */
 .radio-container input[type="radio"] {
     margin-right: 10px;
 }
 
-/* Styling when hovering */
+/* Hover Effect for Answer Choices */
 .radio-container:hover {
     background: #eaeaea;
 }
 
-/* Submit button styling */
+/* Submit Button Styling */
 button[type="submit"] {
     width: 100%;
     padding: 12px;
@@ -70,4 +88,3 @@ button[type="submit"] {
 button[type="submit"]:hover {
     background: #004494;
 }
-
