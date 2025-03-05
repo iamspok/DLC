@@ -81,9 +81,10 @@ def display_questions():
 
 @app.route('/submit', methods=['POST'])
 def submit_quiz():
-    """Handles quiz submission."""
+    """Handles quiz submission, ensuring users can only take the quiz once per DLC."""
     email = session.get('email')
     site = session.get('site')
+    dlc_id = get_latest_dlc()  # Get the current active DLC
 
     if not email:
         email = request.form.get('email')
@@ -92,6 +93,16 @@ def submit_quiz():
 
     if not email or not site:
         return "Error: Email and site are required!", 400
+
+    # ✅ Step 1: Check if this user has already taken the quiz for this DLC
+    existing_entry = supabase.table("quiz_results") \
+        .select("email") \
+        .eq("email", email) \
+        .eq("dlc_id", dlc_id) \
+        .execute()
+
+    if existing_entry.data:
+        return "⚠️ You have already submitted the DLC for this month!", 400
 
     # ✅ Debug: Print all submitted form data
     print(f"📩 DEBUG: Received form data: {dict(request.form)}")
@@ -132,6 +143,7 @@ def submit_quiz():
     supabase.table("quiz_results").insert({
         "email": email,
         "site": site,
+        "dlc_id": dlc_id,  # Ensure DLC ID is stored
         "overall_score": score,
         **question_scores
     }).execute()
