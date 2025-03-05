@@ -5,21 +5,25 @@ body {
     text-align: center;
     padding: 20px;
     margin: 0;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
-/* Background for Start Page */
+/* Start Page Background */
 .start-page {
-    background-color: #dda15e; /* Warm Orange */
+    background-color: #dda15e;
 }
 
-/* Background for Quiz Page */
+/* Quiz Page Background */
 .quiz-page {
-    background-color: #a3b18a; /* Muted Green */
+    background-color: #a3b18a;
 }
 
-/* Background for Results Page */
+/* Results Page Background */
 .results-page {
-    background-color: #90e0ef; /* Soft Blue */
+    background-color: #90e0ef;
 }
 
 /* Quiz Container */
@@ -87,4 +91,14 @@ button[type="submit"] {
 
 button[type="submit"]:hover {
     background: #004494;
+}
+
+/* Results Container Styling */
+.results-container {
+    background: white;
+    padding: 30px;
+    border-radius: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    width: 400px;
 }
