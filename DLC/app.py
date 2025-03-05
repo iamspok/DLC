@@ -54,10 +54,28 @@ def load_questions():
 
 @app.route("/", methods=["GET", "POST"])
 def index():
-    """Step 1: Collect email & site before starting the quiz"""
+    """Step 1: Collect email & site before starting the quiz, but prevent duplicate attempts."""
     if request.method == "POST":
-        session["email"] = request.form.get("email")
-        session["site"] = request.form.get("site")
+        email = request.form.get("email")
+        site = request.form.get("site")
+        dlc_id = get_latest_dlc()  # ✅ Get the latest DLC ID
+
+        if not email or not site:
+            return "⚠️ Email and site are required!", 400
+
+        # ✅ Check if the user has already completed this DLC
+        existing_entry = supabase.table("quiz_results") \
+            .select("email") \
+            .eq("email", email) \
+            .eq("dlc_id", dlc_id) \
+            .execute()
+
+        if existing_entry.data:
+            return render_template("error.html", message="⚠️ You have already completed this month's DLC!")  
+
+        # ✅ Store email & site in session before starting the quiz
+        session["email"] = email
+        session["site"] = site
         return redirect(url_for("display_questions"))
 
     return render_template("start.html")  # Only email & site fields
@@ -90,7 +108,7 @@ def get_latest_dlc():
 
 @app.route('/submit', methods=['POST'])
 def submit_quiz():
-    """Handles quiz submission, ensuring users can only take the quiz once per DLC."""
+    """Handles quiz submission and stores results in Supabase."""
     email = session.get('email')
     site = session.get('site')
     dlc_id = get_latest_dlc()  # ✅ Ensure DLC ID is fetched correctly
@@ -102,16 +120,6 @@ def submit_quiz():
 
     if not email or not site or not dlc_id:
         return "Error: Email, site, and DLC ID are required!", 400
-
-    # ✅ Step 1: Check if this user has already taken the quiz for this DLC
-    existing_entry = supabase.table("quiz_results") \
-        .select("email") \
-        .eq("email", email) \
-        .eq("dlc_id", dlc_id) \
-        .execute()
-
-    if existing_entry.data:
-        return "⚠️ You have already submitted the DLC for this month!", 400
 
     # ✅ Debug: Print all submitted form data
     print(f"📩 DEBUG: Received form data: {dict(request.form)}")
@@ -149,6 +157,7 @@ def submit_quiz():
 
     print(f"✅ DEBUG: Storing score {score}/{total_questions} in session")
 
+    # ✅ Store results in Supabase
     supabase.table("quiz_results").insert({
         "email": email,
         "site": site,
