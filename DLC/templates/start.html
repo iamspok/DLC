@@ -7,17 +7,6 @@
     <title>Quiz Start</title>
     <link href="https://fonts.googleapis.com/css2?family=Tenorite:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        body {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh; /* Ensures background covers the full page */
-            background-color: #dda15e;
-            font-family: 'Tenorite', sans-serif;
-            font-weight: bold;
-            margin: 0;
-        }
-
         .quiz-container {
             background: white;
             padding: 30px;
@@ -35,15 +24,13 @@
             flex-direction: column;
             align-items: center;
         }
-        /* Centering labels */
         label {
             display: block;
             font-weight: bold;
-            text-align: center; /* Center the text */
+            text-align: center;
             width: 100%;
             margin-bottom: 5px;
         }
-        /* Ensure input and select are exactly the same width and centered */
         input, select {
             width: 100%;
             max-width: 300px;
@@ -55,7 +42,6 @@
             box-sizing: border-box;
             margin: 5px auto;
         }
-        /* Extra spacing between email and site selection */
         #email {
             margin-bottom: 15px;
         }
@@ -76,7 +62,7 @@
         }
     </style>
 </head>
-<body>
+<body class="start-page">  <!-- ✅ ADDED CLASS HERE -->
     <div class="quiz-container">
         <h1>Enter Your Details!</h1>
 
