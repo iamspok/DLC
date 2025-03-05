@@ -79,20 +79,29 @@ def display_questions():
 
     return render_template("quiz.html", questions=selected_questions)
 
+def get_latest_dlc():
+    """Fetches the current active DLC ID from the Supabase settings table."""
+    response = supabase.table("dlc_settings").select("current_dlc").execute()
+    
+    if response.data and len(response.data) > 0:
+        return response.data[0]["current_dlc"]
+    
+    return None  # If no DLC is found
+
 @app.route('/submit', methods=['POST'])
 def submit_quiz():
     """Handles quiz submission, ensuring users can only take the quiz once per DLC."""
     email = session.get('email')
     site = session.get('site')
-    dlc_id = get_latest_dlc()  # Get the current active DLC
+    dlc_id = get_latest_dlc()  # ✅ Ensure DLC ID is fetched correctly
 
     if not email:
         email = request.form.get('email')
     if not site:
         site = request.form.get('site')
 
-    if not email or not site:
-        return "Error: Email and site are required!", 400
+    if not email or not site or not dlc_id:
+        return "Error: Email, site, and DLC ID are required!", 400
 
     # ✅ Step 1: Check if this user has already taken the quiz for this DLC
     existing_entry = supabase.table("quiz_results") \
@@ -143,7 +152,7 @@ def submit_quiz():
     supabase.table("quiz_results").insert({
         "email": email,
         "site": site,
-        "dlc_id": dlc_id,  # Ensure DLC ID is stored
+        "dlc_id": dlc_id,  # ✅ Store DLC ID in database
         "overall_score": score,
         **question_scores
     }).execute()
