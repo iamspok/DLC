@@ -7,15 +7,6 @@
     <title>Quiz Results</title>
     <link href="https://fonts.googleapis.com/css2?family=Tenorite:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        body {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background-color: #90e0ef;
-            font-family: 'Tenorite', sans-serif;
-            font-weight: bold;
-        }
         .results-container {
             background: white;
             padding: 30px;
@@ -48,7 +39,7 @@
         }
     </style>
 </head>
-<body>
+<body class="results-page">  <!-- ✅ ADDED CLASS HERE -->
     <div class="results-container">
         <h1>Quiz Completed!</h1>
         <p>Your Score: {{ score }}/{{ total_questions }}</p>
