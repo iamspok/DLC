@@ -69,18 +69,48 @@ def index():
 
 @app.route('/quiz', methods=['POST', 'GET'])
 def display_questions():
-    """Display the quiz questions in a random order."""
-    load_questions()
+    # ✅ Get the flow the user selected
+    flow = session.get("flow")
 
-    if not selected_questions:
-        return jsonify({'error': 'No questions loaded. Check server logs or Excel file.'})
+    if not flow:
+        return "⚠️ Flow not specified. Please start again.", 400
 
-    # 🔀 Shuffle the question order
-    random.shuffle(selected_questions)
+    # ✅ Decide which table to query
+    if flow == "services":
+        table_name = "quiz_questions"  # existing services path
+    elif flow == "engagement":
+        table_name = "quiz_questions_engagement"  # new engagement path
+    else:
+        return "⚠️ Invalid flow. Please select a valid area.", 400
 
-    # Assign unique names to each question (question_1, question_2, ..., question_15)
-    for idx, question in enumerate(selected_questions):
-        question['name'] = f"question_{idx+1}"
+    # ✅ Fetch the questions from Supabase
+    response = supabase.table(table_name).select("*").execute()
+
+    if not response.data:
+        return f"⚠️ No questions found for {flow}.", 404
+
+    # ✅ Process the questions (same as before)
+    selected_questions = []
+    for idx, q in enumerate(response.data):
+        correct_answer = q["correct_answer"].strip()
+        answers = eval(q["answers"])  # Stored as a stringified list
+
+        if correct_answer not in answers:
+            answers.append(correct_answer)
+
+        import random
+        random.shuffle(answers)
+
+        selected_questions.append({
+            "id": idx + 1,
+            "question": q["question"],
+            "correct_answer": correct_answer,
+            "answers": answers,
+            "name": f"question_{idx+1}"
+        })
+
+    # ✅ Save selected questions to session
+    session["selected_questions"] = selected_questions
 
     return render_template("quiz.html", questions=selected_questions)
 
