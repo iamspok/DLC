@@ -54,24 +54,20 @@ def load_questions():
 
 @app.route("/", methods=["GET", "POST"])
 def index():
-    """Step 1: Collect email & site before starting the quiz, but prevent duplicate attempts."""
     if request.method == "POST":
-        email = request.form.get("email")
-        site = request.form.get("site")
-        dlc_id = get_latest_dlc()  # ✅ Get the latest DLC ID
+        # Grab the form data
+        session["email"] = request.form.get("email")
+        session["site"] = request.form.get("site")
+        session["flow"] = request.form.get("flow")  # ✅ Grab the flow selection
 
-        if not email or not site:
-            return "⚠️ Email and site are required!", 400
+        # Validate: Make sure a flow was selected
+        if not session["flow"]:
+            return "⚠️ Please select an area (Player Engagement or Player Services).", 400
 
-        # ✅ Check if the user has already completed this DLC
-        existing_entry = supabase.table("quiz_results") \
-            .select("email") \
-            .eq("email", email) \
-            .eq("dlc_id", dlc_id) \
-            .execute()
+        print(f"✅ Flow selected: {session['flow']}")
+        return redirect(url_for("display_questions"))
 
-        if existing_entry.data:
-            return render_template("error.html", message="⚠️ You have already completed this month's DLC!")  
+    return render_template("start.html")
 
         # ✅ Store email & site in session before starting the quiz
         session["email"] = email
