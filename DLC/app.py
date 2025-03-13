@@ -55,12 +55,10 @@ def load_questions():
 @app.route("/", methods=["GET", "POST"])
 def index():
     if request.method == "POST":
-        # Grab the form data
         session["email"] = request.form.get("email")
         session["site"] = request.form.get("site")
         session["flow"] = request.form.get("flow")  # ✅ Grab the flow selection
 
-        # Validate: Make sure a flow was selected
         if not session["flow"]:
             return "⚠️ Please select an area (Player Engagement or Player Services).", 400
 
@@ -68,13 +66,6 @@ def index():
         return redirect(url_for("display_questions"))
 
     return render_template("start.html")
-
-        # ✅ Store email & site in session before starting the quiz
-        session["email"] = email
-        session["site"] = site
-        return redirect(url_for("display_questions"))
-
-    return render_template("start.html")  # Only email & site fields
 
 @app.route('/quiz', methods=['POST', 'GET'])
 def display_questions():
