@@ -1,5 +1,6 @@
 import time
 from supabase import create_client
+from datetime import datetime
 
 # 🔹 Supabase Setup
 SUPABASE_URL = "https://dfckzgwvefprwuythpnl.supabase.co"
@@ -35,13 +36,27 @@ def archive_table(source_table, archive_table):
         print(f"⚠️ No data found in {source_table} to archive.")
         return
 
-    # Insert data into archive table
-    supabase.table(archive_table).insert(response.data).execute()
+    records = response.data
 
-    # Delete data from source table (only entries for the current DLC)
-    supabase.table(source_table).delete().neq("id", 0).execute()  # Deletes all records
+    # ✅ Convert timestamps to ISO 8601 where applicable
+    for record in records:
+        for key in record.keys():
+            if "timestamp" in key or "created_at" in key or "updated_at" in key:
+                ts_value = record[key]
+                if isinstance(ts_value, (int, float)):
+                    record[key] = datetime.utcfromtimestamp(ts_value).isoformat() + "Z"
 
-    print(f"✅ Archived {len(response.data)} records from {source_table}.")
+    # ✅ Insert into archive table
+    supabase.table(archive_table).insert(records).execute()
+
+    # ✅ Delete records (use "email" for quiz_results and "id" for other tables)
+    if source_table == "quiz_results" or source_table == "quiz_results_engagement":
+        supabase.table(source_table).delete().neq("email", "").execute()
+    else:
+        supabase.table(source_table).delete().neq("id", 0).execute()
+
+    print(f"✅ Archived {len(records)} records from {source_table}.")
+
 
 def update_dlc_period():
     """Main function to close out the current DLC and move to the next one."""
