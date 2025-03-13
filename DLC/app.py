@@ -27,7 +27,6 @@ def fetch_locked_or_lock_questions(flow, limit=15):
         print(f"❗ No current DLC found.")
         return []
 
-    # Step 1: Check dlc_question_lock for existing locks
     locked_response = supabase.table("dlc_question_lock").select("question_id").eq("dlc_id", current_dlc).eq("flow", flow).execute()
     locked_question_ids = [entry['question_id'] for entry in locked_response.data]
 
@@ -43,18 +42,16 @@ def fetch_locked_or_lock_questions(flow, limit=15):
 
         return locked_questions
 
-    # Step 2: No locked questions - select and lock new ones
+    # No locks yet? Let's create them.
     new_questions = select_questions(flow, limit)
 
     if not new_questions:
         print(f"❗ No questions found to lock for {flow}")
         return []
 
-    # Step 3: Lock questions and populate live quiz tables
     quiz_table = "quiz_questions" if flow == "services" else "quiz_questions_engagement"
 
     for question in new_questions:
-        # Insert into dlc_question_lock
         supabase.table("dlc_question_lock").insert({
             "dlc_id": current_dlc,
             "question_id": question['id'],
@@ -62,7 +59,6 @@ def fetch_locked_or_lock_questions(flow, limit=15):
             "locked_at": datetime.utcnow().isoformat()
         }).execute()
 
-        # Insert into quiz_questions table for Heroku
         supabase.table(quiz_table).insert({
             "question": question.get('question'),
             "correct_answer": question.get('correct_answer'),
@@ -72,7 +68,8 @@ def fetch_locked_or_lock_questions(flow, limit=15):
                 question.get('answer_3'),
                 question.get('answer_4'),
                 question.get('answer_5')
-            ]
+            ],
+            "timestamp": datetime.utcnow().isoformat()  # ✅ Add this!
         }).execute()
 
     print(f"✅ Locked and populated {len(new_questions)} questions for {flow} in {current_dlc}")
