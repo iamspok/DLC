@@ -42,7 +42,7 @@ def fetch_locked_or_lock_questions(flow, limit=15):
 
         return locked_questions
 
-    # No locks yet? Let's create them.
+    # No locked questions yet? Let's create them.
     new_questions = select_questions(flow, limit)
 
     if not new_questions:
@@ -51,15 +51,14 @@ def fetch_locked_or_lock_questions(flow, limit=15):
 
     quiz_table = "quiz_questions" if flow == "services" else "quiz_questions_engagement"
 
-    # ✅ THIS IS THE BLOCK CAUSING THE INDENTATION ERROR
-      for question in new_questions:
+    for question in new_questions:
         supabase.table("dlc_question_lock").insert({
             "dlc_id": current_dlc,
             "question_id": question['id'],
             "flow": flow,
             "locked_at": datetime.utcnow().isoformat()
         }).execute()
-    
+
         supabase.table(quiz_table).insert({
             "question": question.get('question'),
             "correct_answer": question.get('correct_answer'),
@@ -72,11 +71,10 @@ def fetch_locked_or_lock_questions(flow, limit=15):
             ],
             "timestamp": int(datetime.utcnow().timestamp())
         }).execute()
+
+    print(f"✅ Locked and populated {len(new_questions)} questions for {flow} in {current_dlc}")
+    return new_questions
     
-        print(f"✅ Locked and populated {len(new_questions)} questions for {flow} in {current_dlc}")
-        return new_questions
-
-
 # ======================================================
 def select_questions(flow, limit=15):
     table_name = get_table_name(flow)
