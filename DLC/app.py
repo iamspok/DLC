@@ -27,14 +27,13 @@ def fetch_locked_or_lock_questions(flow, limit=15):
         print(f"❗ No current DLC found.")
         return []
 
-    # Step 1: Check dlc_question_lock
+    # Step 1: Check dlc_question_lock for existing locks
     locked_response = supabase.table("dlc_question_lock").select("question_id").eq("dlc_id", current_dlc).eq("flow", flow).execute()
     locked_question_ids = [entry['question_id'] for entry in locked_response.data]
 
     if locked_question_ids:
         print(f"🔒 Found {len(locked_question_ids)} locked questions for {flow} in {current_dlc}")
 
-        # Fetch questions by ID and return them
         table_name = get_table_name(flow)
         locked_questions = []
         for qid in locked_question_ids:
@@ -44,15 +43,15 @@ def fetch_locked_or_lock_questions(flow, limit=15):
 
         return locked_questions
 
-    # Step 2: No locked questions, so select and lock them
+    # Step 2: No locked questions - select and lock new ones
     new_questions = select_questions(flow, limit)
 
     if not new_questions:
         print(f"❗ No questions found to lock for {flow}")
         return []
 
-    # Step 3: Lock questions in dlc_question_lock and push to quiz_questions table
-    table_name = "quiz_questions" if flow == "services" else "quiz_questions_engagement"
+    # Step 3: Lock questions and populate live quiz tables
+    quiz_table = "quiz_questions" if flow == "services" else "quiz_questions_engagement"
 
     for question in new_questions:
         # Insert into dlc_question_lock
@@ -63,15 +62,17 @@ def fetch_locked_or_lock_questions(flow, limit=15):
             "locked_at": datetime.utcnow().isoformat()
         }).execute()
 
-        # Insert into the quiz_questions table for Heroku to pull from
-        supabase.table(table_name).insert({
+        # Insert into quiz_questions table for Heroku
+        supabase.table(quiz_table).insert({
             "question": question.get('question'),
             "correct_answer": question.get('correct_answer'),
-            "answers": [question.get('correct_answer'),
-                        question.get('answer_2'),
-                        question.get('answer_3'),
-                        question.get('answer_4'),
-                        question.get('answer_5')]
+            "answers": [
+                question.get('correct_answer'),
+                question.get('answer_2'),
+                question.get('answer_3'),
+                question.get('answer_4'),
+                question.get('answer_5')
+            ]
         }).execute()
 
     print(f"✅ Locked and populated {len(new_questions)} questions for {flow} in {current_dlc}")
@@ -83,24 +84,26 @@ def select_questions(flow, limit=15):
     if not table_name:
         return []
 
-    # Step 1: Get push questions
+    # Step 1: Get all push questions (always included)
     push_response = supabase.table(table_name).select("*").eq('status', 'push').execute()
     push_questions = push_response.data or []
+    print(f"📌 {flow} - Found {len(push_questions)} push questions")
 
     remaining_slots = limit - len(push_questions)
 
-    # Step 2: Get active questions if needed
-    active_questions = []
+    # Step 2: Get remaining questions (status not 'inactive' or 'push')
     if remaining_slots > 0:
-        active_response = supabase.table(table_name).select("*").eq('status', 'active').execute()
-        active_pool = active_response.data or []
-        random.shuffle(active_pool)
-        active_questions = active_pool[:remaining_slots]
+        active_response = supabase.table(table_name).select("*").not_.in_('status', ['inactive', 'push']).execute()
+        available_pool = active_response.data or []
+        random.shuffle(available_pool)
+        active_questions = available_pool[:remaining_slots]
+    else:
+        active_questions = []
 
     all_questions = push_questions + active_questions
     random.shuffle(all_questions)
 
-    print(f"✅ {flow} - Selected {len(all_questions)} questions (Push: {len(push_questions)}, Active: {len(active_questions)})")
+    print(f"✅ {flow} - Selected {len(all_questions)} total questions (Push: {len(push_questions)}, Random Active: {len(active_questions)})")
     return all_questions
 
 # ======================================================
@@ -142,11 +145,11 @@ def display_questions():
     processed_questions = []
     for idx, q in enumerate(selected_questions):
         answers = [
-            q.get('correct_answer', '').strip(),
-            q.get('answer_2', '').strip(),
-            q.get('answer_3', '').strip(),
-            q.get('answer_4', '').strip(),
-            q.get('answer_5', '').strip(),
+            (q.get('correct_answer') or '').strip(),
+            (q.get('answer_2') or '').strip(),
+            (q.get('answer_3') or '').strip(),
+            (q.get('answer_4') or '').strip(),
+            (q.get('answer_5') or '').strip(),
         ]
         answers = [a for a in answers if a]
         random.shuffle(answers)
@@ -190,7 +193,7 @@ def submit_quiz():
     for idx, question in enumerate(selected_questions):
         question_name = f'question_{idx + 1}'
         user_answer = request.form.get(question_name, "").strip().lower()
-        correct_answer = question.get('correct_answer', "").strip().lower()
+        correct_answer = (question.get('correct_answer') or '').strip().lower()
 
         if user_answer and user_answer != "no_answer":
             is_correct = 1 if user_answer == correct_answer else 0
