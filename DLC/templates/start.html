@@ -7,6 +7,16 @@
     <title>Quiz Start</title>
     <link href="https://fonts.googleapis.com/css2?family=Tenorite:wght@400;700&display=swap" rel="stylesheet">
     <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #dda15e;
+            font-family: 'Tenorite', sans-serif;
+            font-weight: bold;
+            margin: 0;
+        }
         .quiz-container {
             background: white;
             padding: 30px;
@@ -42,9 +52,6 @@
             box-sizing: border-box;
             margin: 5px auto;
         }
-        #email {
-            margin-bottom: 15px;
-        }
         button {
             margin-top: 20px;
             padding: 10px 20px;
@@ -62,15 +69,13 @@
         }
     </style>
 </head>
-<body class="start-page">  <!-- ✅ ADDED CLASS HERE -->
+<body>
     <div class="quiz-container">
         <h1>Enter Your Details!</h1>
 
         <form action="{{ url_for('index') }}" method="post">
             <label for="email">Email:</label>
             <input type="email" id="email" name="email" required>
-
-            <br> <!-- Extra line break for clarity -->
 
             <label for="site">Select Your Site:</label>
             <select id="site" name="site" required>
@@ -82,6 +87,15 @@
                 <option value="Concentrix">Concentrix</option>
                 <option value="PTW">PTW</option>
             </select>
+
+            <!-- NEW SECTION FOR FLOW SELECTION -->
+            <label for="flow">Select Your Area:</label>
+            <select id="flow" name="flow" required>
+                <option value="" disabled selected>Select your area:</option>
+                <option value="engagement">Player Engagement</option>
+                <option value="services">Player Services</option>
+            </select>
+            <!-- END NEW SECTION -->
 
             <button type="submit">Start DLC</button>
         </form>
