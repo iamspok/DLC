@@ -51,26 +51,26 @@ def fetch_locked_or_lock_questions(flow, limit=15):
 
     quiz_table = "quiz_questions" if flow == "services" else "quiz_questions_engagement"
 
-    for question in new_questions:
-        supabase.table("dlc_question_lock").insert({
-            "dlc_id": current_dlc,
-            "question_id": question['id'],
-            "flow": flow,
-            "locked_at": datetime.utcnow().isoformat()
-        }).execute()
+   for question in new_questions:
+    supabase.table("dlc_question_lock").insert({
+        "dlc_id": current_dlc,
+        "question_id": question['id'],
+        "flow": flow,
+        "locked_at": datetime.utcnow().isoformat()
+    }).execute()
 
-        supabase.table(quiz_table).insert({
-            "question": question.get('question'),
-            "correct_answer": question.get('correct_answer'),
-            "answers": [
-                question.get('correct_answer'),
-                question.get('answer_2'),
-                question.get('answer_3'),
-                question.get('answer_4'),
-                question.get('answer_5')
-            ],
-            "timestamp": datetime.utcnow().isoformat()  # ✅ Add this!
-        }).execute()
+    supabase.table(quiz_table).insert({
+        "question": question.get('question'),
+        "correct_answer": question.get('correct_answer'),
+        "answers": [
+            question.get('correct_answer'),
+            question.get('answer_2'),
+            question.get('answer_3'),
+            question.get('answer_4'),
+            question.get('answer_5')
+        ],
+        "timestamp": int(datetime.utcnow().timestamp())  # ✅ Use Unix timestamp as BIGINT
+    }).execute()
 
     print(f"✅ Locked and populated {len(new_questions)} questions for {flow} in {current_dlc}")
     return new_questions
