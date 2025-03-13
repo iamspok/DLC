@@ -42,22 +42,21 @@ def display_questions():
 
     # ✅ Decide which table to query based on the flow
     if flow == "services":
-        table_name = "dlc_selected_questions_services"  # New table for pre-selected questions
+        table_name = "quiz_questions"  # Player Services
     elif flow == "engagement":
-        table_name = "dlc_selected_questions_engagement"  # New table for pre-selected questions
+        table_name = "quiz_questions_engagement"  # Player Engagement
     else:
         return "⚠️ Invalid flow. Please select a valid area.", 400
 
-    # ✅ Get the latest DLC period
+    # ✅ Fetch the current DLC ID (optional, if your table includes dlc_id filtering)
     dlc_id = get_latest_dlc()
-    if not dlc_id:
-        return "⚠️ DLC period not found.", 400
 
-    # ✅ Fetch the selected questions for this DLC
+    # ✅ Fetch the selected 15 questions from the correct table
+    # ❗ If you're storing DLC-specific questions in these tables, use `.eq("dlc_id", dlc_id)`
     response = supabase.table(table_name).select("*").eq("dlc_id", dlc_id).execute()
 
     if not response.data:
-        return f"⚠️ No questions found for {flow} in {dlc_id}.", 404
+        return f"⚠️ No questions found for {flow} in DLC {dlc_id}.", 404
 
     # ✅ Process the selected questions (manual naming enforced)
     selected_questions = []
@@ -82,7 +81,6 @@ def display_questions():
     session["selected_questions"] = selected_questions
 
     return render_template("quiz.html", questions=selected_questions)
-
 
 @app.route('/submit', methods=['POST'])
 def submit_quiz():
